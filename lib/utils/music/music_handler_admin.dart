@@ -2,9 +2,7 @@
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:tune/utils/constant.dart';
 import 'package:id3tag/id3tag.dart';
 import 'dart:io';
@@ -14,8 +12,16 @@ ID3Tag? _metaData;
 
 class MusicHandlerAdmin extends ChangeNotifier {
   late AudioHandler _audioHandler;
-  MusicHandlerAdmin({required AudioHandler audioHandler}) {
-    _audioHandler = audioHandler;
+
+  Future<void> initAudioHandler(String filePath) async {
+    _audioHandler = await AudioService.init(
+      builder: () => AudioPlayerHandler(filePath),
+      config: const AudioServiceConfig(
+        androidNotificationChannelId: 'com.ryanheise.myapp.channel.audio',
+        androidNotificationChannelName: 'Audio playback',
+        androidNotificationOngoing: true,
+      ),
+    );
   }
 
   AudioHandler get getAudioHandler {
@@ -57,31 +63,34 @@ class MusicHandlerAdmin extends ChangeNotifier {
 ///
 
 class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
-  AudioPlayerHandler() {
+  AudioPlayerHandler(String filePath) {
     // So that our clients (the Flutter UI and the system notification) know
     // what state to display, here we set up our audio handler to broadcast all
     // playback state changes as they happen via playbackState...
     _player.playbackEventStream.map(_transformEvent).pipe(playbackState);
-    init();
+    initSong(filePath);
   }
 
-  Future<void> init() async {
-    final ByteData fileData = await rootBundle.load(kDefaultSongPath);
-    final filePath = '${(await getTemporaryDirectory()).path}/test';
-    File(filePath).writeAsBytesSync(fileData.buffer
-        .asUint8List(fileData.offsetInBytes, fileData.lengthInBytes));
-
+  Future<void> initSong(String filePath) async {
     final parser = ID3TagReader(File(filePath));
     _metaData = parser.readTagSync();
 
+    print(_metaData?.title);
+    List<String> loc = filePath.split('/');
+    String songName = loc[loc.length - 1];
+
+    List<String> dots = songName.split('.');
+
     final item = MediaItem(
-      id: kDefaultSongPath,
+      id: filePath,
       album: _metaData!.album,
-      title: _metaData!.title ?? '',
+      title: _metaData!.title != null
+          ? _metaData!.title!
+          : songName.substring(0, songName.indexOf(dots[dots.length - 1]) - 1),
       artist: _metaData!.artist,
     );
 
-    await _player.setAsset(kDefaultSongPath);
+    await _player.setFilePath(filePath);
 
     mediaItem.add(item.copyWith(duration: _player.duration));
   }

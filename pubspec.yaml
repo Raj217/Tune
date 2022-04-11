@@ -21,9 +21,12 @@ dependencies:
   id3tag: ^0.1.0
   text_scroll: ^0.0.4
   flutter_glow: ^0.2.0
+  curved_navigation_bar: ^1.0.3
+  file_picker: ^4.5.1
+  lottie: ^1.2.2
+  liquid_swipe: ^2.1.1
   # Might be useful in future
   # intl: ^0.17.0
-  # curved_navigation_bar: ^1.0.3
 
 
 dev_dependencies:
@@ -43,7 +46,7 @@ flutter:
   assets:
     - assets/test/
     - assets/icons/
-    - assets/masks/
+    - assets/animations/
 
   fonts:
     - family: Mohr Rounded

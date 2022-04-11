@@ -56,33 +56,35 @@ class _PosterState extends State<Poster> {
       );
     }
 
-    return Stack(alignment: Alignment.topCenter, children: [
-      Center(
-        child: CustomPaint(
-          painter: PosterShadow(
-            height: widget._height - 4,
-            width: widget._width - 4,
-            spread: widget._spread + 2,
-            color: kBaseColor,
-            offset: Offset(-widget._spread - 2, 0),
+    return SizedBox(
+      child: Stack(alignment: Alignment.topCenter, children: [
+        Center(
+          child: CustomPaint(
+            painter: PosterShadow(
+              height: widget._height - 4,
+              width: widget._width - 4,
+              spread: widget._spread + 2,
+              color: kBaseColor,
+              offset: Offset(-widget._spread - 2, 0),
+            ),
           ),
         ),
-      ),
-      Center(
-        child: CustomPaint(
-          painter: PosterShadow(
-            height: widget._height - 4,
-            width: widget._width - 4,
-            spread: widget._spread + 2,
-            color: kWhiteTranslucent,
-            offset: Offset(widget._spread + 2, 0),
+        Center(
+          child: CustomPaint(
+            painter: PosterShadow(
+              height: widget._height - 4,
+              width: widget._width - 4,
+              spread: widget._spread + 2,
+              color: kWhiteTranslucent,
+              offset: Offset(widget._spread + 2, 0),
+            ),
           ),
         ),
-      ),
-      ClipPath(
-          clipper:
-              PosterClipper(height: widget._height - 3, width: widget._width),
-          child: posterImg),
-    ]);
+        ClipPath(
+            clipper:
+                PosterClipper(height: widget._height - 3, width: widget._width),
+            child: posterImg),
+      ]),
+    );
   }
 }

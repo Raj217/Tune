@@ -11,8 +11,9 @@ const Duration kDurationSplashScreenTime = Duration(milliseconds: 600);
 const Duration kDurationNotInitialised = Duration(milliseconds: 1);
 const Duration kDurationProgressBarOnChangeOpacity =
     Duration(milliseconds: 800);
+const Duration kDefaultLiquidAnimDuration = Duration(seconds: 3);
 
-// ---------------------------- Color ----------------------------
+// ---------------------------- Default Color ----------------------------
 const Color kBackgroundColor = kBlack;
 const Color kBaseColor = kYellow;
 const Color kBaseCounterColor = kBrown;
@@ -27,9 +28,9 @@ const double kSplashScreenLogoSize = 150;
 const double kDefaultLogoSize = 150;
 
 // ---------------------------- Paths ----------------------------
-const String kDefaultSongPath = 'assets/test/song6.mp3';
 const String kIconsPath = 'assets/icons';
 const String kDefaultPosterImgPath = 'assets/test/default.png';
+const String kDefaultLottieAnimationsPath = 'assets/animations';
 
 // ---------------------------- Color ----------------------------
 const Color kBlack = Color(0xFF040303);

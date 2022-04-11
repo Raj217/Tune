@@ -5,25 +5,16 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:audio_service/audio_service.dart';
-import 'package:tune/screens/loading_screen.dart';
+import 'package:tune/screens/bottom_navigator.dart';
+import 'package:tune/screens/home_screen.dart';
+import 'package:tune/screens/local_audio_screen.dart';
+import 'package:tune/screens/splash_screen.dart';
+import 'package:tune/screens/playlist_screen.dart';
 
-import 'screens/current_music_screen.dart';
+import 'screens/audio_player.dart';
 import 'utils/music/music_handler_admin.dart';
 
-/// The Audio Handler handles song from all sources(both from screen and from user)
-late AudioHandler _audioHandler;
-
-void main() async {
-  _audioHandler = await AudioService.init(
-    builder: () => AudioPlayerHandler(),
-    config: const AudioServiceConfig(
-      androidNotificationChannelId: 'com.ryanheise.myapp.channel.audio',
-      androidNotificationChannelName: 'Audio playback',
-      androidNotificationOngoing: true,
-    ),
-  );
-
+void main() {
   runApp(const Tune());
 }
 
@@ -35,17 +26,21 @@ class Tune extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-            create: (BuildContext context) =>
-                MusicHandlerAdmin(audioHandler: _audioHandler)),
+            create: (BuildContext context) => MusicHandlerAdmin()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Tune',
         theme: ThemeData.dark(),
-        initialRoute: LoadingScreen.id,
+        initialRoute: SplashScreen.id,
         routes: {
-          CurrentMusicScreen.id: (BuildContext context) => CurrentMusicScreen(),
-          LoadingScreen.id: (BuildContext context) => const LoadingScreen(),
+          AudioPlayer.id: (BuildContext context) => AudioPlayer(),
+          BottomNavigator.id: (BuildContext context) => const BottomNavigator(),
+          HomeScreen.id: (BuildContext context) => const HomeScreen(),
+          LocalAudioScreen.id: (BuildContext context) =>
+              const LocalAudioScreen(),
+          PlaylistScreen.id: (BuildContext context) => const PlaylistScreen(),
+          SplashScreen.id: (BuildContext context) => const SplashScreen(),
         },
       ),
     );
