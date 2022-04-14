@@ -12,7 +12,8 @@ import 'package:tune/screens/splash_screen.dart';
 import 'package:tune/screens/playlist_screen.dart';
 
 import 'screens/audio_player.dart';
-import 'utils/music/music_handler_admin.dart';
+import 'utils/provider/music/music_handler_admin.dart';
+import 'utils/provider/states/screen_state_tracker.dart';
 
 void main() {
   runApp(const Tune());
@@ -27,6 +28,8 @@ class Tune extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(
             create: (BuildContext context) => MusicHandlerAdmin()),
+        ChangeNotifierProvider(
+            create: (BuildContext context) => ScreenStateTracker())
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

@@ -1,17 +1,17 @@
 /// Loading Screen to initialize all the essentials
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter_glow/flutter_glow.dart';
+import 'package:provider/provider.dart';
+import 'package:tune/utils/provider/music/music_handler_admin.dart';
+import 'package:tune/utils/storage/file_handler.dart';
 import 'package:tune/widgets/others/tune_logo.dart';
 import 'dart:async';
 
-import 'package:tune/utils/music/music_handler_admin.dart';
-import 'package:tune/screens/audio_player.dart';
 import 'package:tune/utils/constant.dart';
 import 'bottom_navigator.dart';
-import '../utils/storage/file_handler.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -28,8 +28,9 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    SystemChrome.setSystemUIOverlayStyle(
-        const SystemUiOverlayStyle(systemNavigationBarColor: kBackgroundColor));
+    lockPortraitMode();
+    setBottomNavBarColor(kBackgroundColor);
+
     Future.delayed(kDurationSplashScreenTime).then((_) {
       Navigator.pushNamed(context, BottomNavigator.id);
     });
@@ -41,22 +42,13 @@ class _SplashScreenState extends State<SplashScreen> {
       if (totalDuration != kDurationNotInitialised) {
         // i.e. The audio is ready to play
         timer.cancel();
+        /*
         Duration position =
-            Provider.of<MusicHandlerAdmin>(context, listen: false).getPosition;
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) {
-              return CurrentMusicScreen(
-                totalDuration: totalDuration,
-                position: position,
-              );
-            },
-          ),
-        );
+            Provider.of<MusicHandlerAdmin>(context, listen: false).getPosition;*/
+        Navigator.pushNamed(context, BottomNavigator.id)
+            .then((value) => exit(0));
       }
-    });
-    */
+    });*/
   }
 
   @override
@@ -69,8 +61,16 @@ class _SplashScreenState extends State<SplashScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              TuneLogo(
-                logoSize: kSplashScreenLogoSize,
+              GestureDetector(
+                onTap: () async {
+                  FileHandler.pick().then((filePath) {
+                    Provider.of<MusicHandlerAdmin>(context, listen: false)
+                        .initAudioHandler(filePath!);
+                  });
+                },
+                child: TuneLogo(
+                  logoSize: kSplashScreenLogoSize,
+                ),
               ),
               GlowText(
                 'Tune',

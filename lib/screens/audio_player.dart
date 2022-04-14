@@ -1,6 +1,7 @@
 /// This screen shows the currently playing song and its related functions
 
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:math';
@@ -9,7 +10,7 @@ import 'package:text_scroll/text_scroll.dart';
 
 import 'package:tune/utils/constant.dart';
 import 'package:tune/utils/formatter.dart';
-import 'package:tune/utils/music/music_handler_admin.dart';
+import 'package:tune/utils/provider/music/music_handler_admin.dart';
 import 'package:tune/widgets/music/progress/music_progress_bar.dart';
 import 'package:tune/widgets/music/progress/music_progress_digital.dart';
 import 'package:tune/widgets/img/poster.dart';
@@ -28,7 +29,8 @@ class AudioPlayer extends StatefulWidget {
   State<AudioPlayer> createState() => _AudioPlayerState();
 }
 
-class _AudioPlayerState extends State<AudioPlayer> {
+class _AudioPlayerState extends State<AudioPlayer>
+    with TickerProviderStateMixin {
   /// Total Duration of the audio
   late Duration totalDuration;
 
@@ -45,32 +47,36 @@ class _AudioPlayerState extends State<AudioPlayer> {
   late double audioTitleWidth;
   late double audioArtistWidth;
   String? songPath;
+  bool favorite = false;
+  late AnimationController _favoriteIconController;
+
+  /// 0: repeat
+  /// 1: repeat this song
+  /// 2: shuffle
+  int playlistMode = 0;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    lockPortraitMode();
+    setBottomNavBarColor(kBackgroundColor);
 
     totalDuration = widget.totalDuration;
     position = widget.position;
 
+    _favoriteIconController = AnimationController(vsync: this)
+      ..addListener(() {
+        if (favorite == true && _favoriteIconController.value >= 0.6) {
+          _favoriteIconController.stop();
+        }
+      });
+
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      startTimer();
+      timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        setState(() {});
+      });
     });
-  }
-
-  void startTimer() {
-    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {});
-    });
-  }
-
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-    Provider.of<MusicHandlerAdmin>(context, listen: false).dispose();
-    timer.cancel();
   }
 
   void initSizes() {
@@ -108,22 +114,22 @@ class _AudioPlayerState extends State<AudioPlayer> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      _button(
-                          Icon(
+                      GestureDetector(
+                          child: Icon(
                             Icons.circle,
                             color: cardButtonColor[0],
                             size: 10,
                           ),
-                          () {}),
+                          onTap: () {}),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 3.0),
-                        child: _button(
-                            Icon(
+                        child: GestureDetector(
+                            child: Icon(
                               Icons.circle,
                               color: cardButtonColor[1],
                               size: 10,
                             ),
-                            () {}),
+                            onTap: () {}),
                       )
                     ],
                   ),
@@ -141,14 +147,16 @@ class _AudioPlayerState extends State<AudioPlayer> {
                       children: [
                         SizedBox(
                           width: audioTitleWidth,
-                          child: TextScroll(
-                              Formatter.scrollText(
-                                  width: audioTitleWidth,
-                                  style: kAudioTitleTextStyle,
-                                  text: handler
-                                      .getAudioHandler.mediaItem.value?.title),
-                              velocity: kTextAutoScrollVelocity,
-                              style: kAudioTitleTextStyle),
+                          child: Center(
+                            child: TextScroll(
+                                Formatter.scrollText(
+                                    width: audioTitleWidth,
+                                    style: kAudioTitleTextStyle,
+                                    text: handler.getAudioHandler.mediaItem
+                                        .value?.title),
+                                velocity: kTextAutoScrollVelocity,
+                                style: kAudioTitleTextStyle),
+                          ),
                         ),
                         SizedBox(
                           width: audioArtistWidth,
@@ -177,23 +185,34 @@ class _AudioPlayerState extends State<AudioPlayer> {
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            _button(
-                                SvgPicture.asset(
-                                  '$kIconsPath/favorite.svg',
-                                  height: 16,
-                                  color: kGrayLight,
-                                ),
-                                () {}),
-                            _button(
-                                SvgPicture.asset(
+                            GestureDetector(
+                                child: Lottie.asset(
+                                    kDefaultLottieAnimationsPath +
+                                        '/favorite.json',
+                                    height: 55,
+                                    controller: _favoriteIconController,
+                                    onLoaded: (controller) {
+                                  _favoriteIconController.duration =
+                                      controller.duration;
+                                }),
+                                onTap: () {
+                                  setState(() {
+                                    favorite = !favorite;
+                                    _favoriteIconController.forward().then(
+                                        (value) =>
+                                            _favoriteIconController.reset());
+                                  });
+                                }),
+                            GestureDetector(
+                                child: SvgPicture.asset(
                                   '$kIconsPath/changeSong.svg',
                                   height: 25,
                                   color: kBaseColor,
                                 ),
-                                () {}),
+                                onTap: () {}),
                             if (playing)
-                              _button(
-                                  Stack(
+                              GestureDetector(
+                                  child: Stack(
                                     alignment: Alignment.center,
                                     children: [
                                       const Icon(
@@ -207,12 +226,13 @@ class _AudioPlayerState extends State<AudioPlayer> {
                                         color: kBackgroundColor,
                                       ),
                                     ],
-                                  ), () {
-                                handler.getAudioHandler.pause();
-                              })
+                                  ),
+                                  onTap: () {
+                                    handler.getAudioHandler.pause();
+                                  })
                             else
-                              _button(
-                                  Stack(
+                              GestureDetector(
+                                  child: Stack(
                                     alignment: Alignment.center,
                                     children: [
                                       const Icon(
@@ -226,12 +246,12 @@ class _AudioPlayerState extends State<AudioPlayer> {
                                         color: kBackgroundColor,
                                       ),
                                     ],
-                                  ), () {
-                                startTimer();
-                                handler.getAudioHandler.play();
-                              }),
-                            _button(
-                                Transform.rotate(
+                                  ),
+                                  onTap: () {
+                                    handler.getAudioHandler.play();
+                                  }),
+                            GestureDetector(
+                                child: Transform.rotate(
                                   alignment: Alignment.center,
                                   angle: pi,
                                   child: SvgPicture.asset(
@@ -239,27 +259,64 @@ class _AudioPlayerState extends State<AudioPlayer> {
                                     height: 25,
                                     color: kBaseColor,
                                   ),
-                                ), () {
-                              handler.getAudioHandler.fastForward;
-                            }),
-                            _button(
-                                SvgPicture.asset(
-                                  '$kIconsPath/shuffle.svg',
-                                  height: 16,
-                                  color: kGrayLight,
                                 ),
-                                () {}),
+                                onTap: () {
+                                  handler.getAudioHandler
+                                      .skipToNext; // TODO: Implement
+                                }),
+                            GestureDetector(
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.circle,
+                                      color: Colors.transparent,
+                                      size: 40,
+                                    ),
+                                    SvgPicture.asset(
+                                      kIconsPath +
+                                          (playlistMode == 0
+                                              ? '/repeat.svg'
+                                              : playlistMode == 1
+                                                  ? '/repeat_this_song.svg'
+                                                  : '/shuffle.svg'),
+                                      height: 16,
+                                      color: kGrayLight,
+                                    ),
+                                  ],
+                                ),
+                                onTap: () {
+                                  setState(() {
+                                    playlistMode++;
+                                    if (playlistMode > 2) {
+                                      playlistMode = 0;
+                                    }
+                                  });
+                                }),
                           ],
                         );
                       }),
                   SizedBox(height: screenSize.height * 0.08),
-                  _button(
-                      SvgPicture.asset(
-                        '$kIconsPath/arrow.svg',
-                        height: 15,
-                        color: kBaseColor,
+                  GestureDetector(
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          const Icon(
+                            Icons.circle,
+                            color: Colors.transparent,
+                            size: 50,
+                          ),
+                          SvgPicture.asset(
+                            '$kIconsPath/arrow.svg',
+                            height: 15,
+                            color: kBaseColor,
+                          ),
+                        ],
                       ),
-                      () {})
+                      onTap: () {
+                        timer.cancel();
+                        Navigator.pop(context);
+                      })
                 ],
               ),
             );
@@ -268,11 +325,4 @@ class _AudioPlayerState extends State<AudioPlayer> {
       ),
     );
   }
-}
-
-GestureDetector _button(Widget widget, VoidCallback onPressed) {
-  return GestureDetector(
-    onTap: onPressed,
-    child: widget,
-  );
 }

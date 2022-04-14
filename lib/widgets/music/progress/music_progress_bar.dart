@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 import 'package:tune/utils/constant.dart';
 import 'package:provider/provider.dart';
-import 'package:tune/utils/music/music_handler_admin.dart';
+import 'package:tune/utils/provider/music/music_handler_admin.dart';
 import 'package:tune/utils/formatter.dart';
 
 class MusicProgressBar extends StatefulWidget {
@@ -51,7 +51,7 @@ class _MusicProgressBarState extends State<MusicProgressBar>
   Widget build(BuildContext context) {
     return Consumer<MusicHandlerAdmin>(
       builder: (context, handler, _) {
-        Duration pos = handler.getPlayer.position;
+        Duration pos = handler.getPosition;
         if (!userChangingBar) {
           // Making the movement smooth, so that the bar doesn't keeps jumping
           position = pos.inMilliseconds.toDouble();

@@ -1,6 +1,7 @@
 /// Change of Poster shape can be made in utils/img/poster_clipper.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 // ---------------------------- Device Values ----------------------------
 // ---------------------------- Velocity ----------------------------
@@ -26,6 +27,9 @@ const double kImgWidth = 270;
 const double kImgSpread = 7;
 const double kSplashScreenLogoSize = 150;
 const double kDefaultLogoSize = 150;
+const double kDefaultMiniAudioBaseHeight = 30;
+const double kDefaultIconHeight = 15;
+const double kDefaultIconWidth = 18;
 
 // ---------------------------- Paths ----------------------------
 const String kIconsPath = 'assets/icons';
@@ -50,3 +54,9 @@ final kAudioTitleTextStyle =
     kBaseTextStyle.copyWith(fontSize: 17, fontWeight: FontWeight.w800);
 final kAudioArtistTextStyle = kBaseTextStyle.copyWith(
     color: kGrayLight, fontSize: 13, fontWeight: FontWeight.w300);
+
+// ---------------------------- System Configs ----------------------------
+void lockPortraitMode() => SystemChrome.setPreferredOrientations(
+    [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+void setBottomNavBarColor(Color color) => SystemChrome.setSystemUIOverlayStyle(
+    SystemUiOverlayStyle(systemNavigationBarColor: color));

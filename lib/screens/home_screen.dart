@@ -16,6 +16,8 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    lockPortraitMode();
+    setBottomNavBarColor(kBaseCounterColor);
   }
 
   @override

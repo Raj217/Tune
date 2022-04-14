@@ -4,7 +4,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:tune/utils/img/poster_shadow.dart';
-import 'package:tune/utils/music/music_handler_admin.dart';
+import 'package:tune/utils/provider/music/music_handler_admin.dart';
 import 'package:tune/utils/img/cache_image_provider.dart';
 import 'package:tune/utils/constant.dart';
 import 'package:tune/utils/img/poster_clipper.dart';
