@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:tune/utils/constant.dart';
+import 'package:tune/utils/constants/system_constants.dart';
 
 class LiquidAnimation extends StatelessWidget {
   /// Height of base
-  double height;
-  LiquidAnimation({Key? key, this.height = 200}) : super(key: key);
+  final double height;
+
+  const LiquidAnimation({Key? key, this.height = 200}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Stack(
       children: [
         Lottie.asset(
           '$kDefaultLottieAnimationsPath/wave-flow.json',
@@ -32,7 +33,7 @@ class Base extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     Paint paint = Paint();
     paint.color = kBaseColor;
-    canvas.drawRect(Rect.fromLTWH(-width / 2, -1, width, height), paint);
+    canvas.drawRect(Rect.fromLTWH(0, height / 10, width, height), paint);
   }
 
   @override

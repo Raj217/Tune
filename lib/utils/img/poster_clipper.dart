@@ -6,21 +6,21 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 
 class PosterClipper extends CustomClipper<Path> {
-  late double _height; // Height of the poster
-  late double _width; // width of the poster
-  late Offset _offset; // Offset of the poster
-  late double
+  /// Creates the shape of the Poster
+  final double _height; // Height of the poster
+  final double _width; // width of the poster
+  final Offset _offset; // Offset of the poster
+  final double
       _top; // Top coordinate of the poster (Useful in draw shadow in PosterShadow)
-  PosterClipper(
+  const PosterClipper(
       {required double height,
       required double width,
       Offset offset = const Offset(0, 0),
-      double top = 0}) {
-    _height = height;
-    _width = width;
-    _offset = offset;
-    _top = top;
-  }
+      double top = 0})
+      : _height = height,
+        _width = width,
+        _offset = offset,
+        _top = top;
 
   @override
   Path getClip(Size size) {

@@ -2,28 +2,28 @@
 
 import 'package:flutter/material.dart';
 
-import 'package:tune/utils/constant.dart';
+import 'package:tune/utils/constants/system_constants.dart';
 import 'package:tune/utils/formatter.dart';
 
 class MusicProgressBarDigital extends StatelessWidget {
-  MusicProgressBarDigital(
+  final Duration position;
+  final Duration totalDuration;
+
+  const MusicProgressBarDigital(
       {Key? key, required this.position, required this.totalDuration})
       : super(key: key);
-  Duration position;
-  Duration totalDuration;
 
   @override
   Widget build(BuildContext context) {
     return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
       Text(
         Formatter.durationFormatted(position),
-        style:
-            kBaseTextStyle.copyWith(fontSize: 13, fontWeight: FontWeight.w700),
+        style: kAudioArtistTextStyle.copyWith(
+            color: kActiveColor, fontWeight: FontWeight.w500),
       ),
       Text(
         ' - ${Formatter.durationFormatted(totalDuration)}',
-        style: kBaseTextStyle.copyWith(
-            color: kGrayLight, fontSize: 13, fontWeight: FontWeight.w500),
+        style: kAudioArtistTextStyle.copyWith(color: kInactiveColor),
       )
     ]);
   }

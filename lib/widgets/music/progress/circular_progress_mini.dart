@@ -1,25 +1,24 @@
-import 'dart:async';
+/// A mini progress bar to show the progress of the audio
 
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
-import 'package:tune/utils/constant.dart';
-import 'dart:math';
 
+import 'package:tune/utils/constants/system_constants.dart';
 import 'package:tune/utils/provider/music/music_handler_admin.dart';
 
 class CircularProgressMini extends StatefulWidget {
-  CircularProgressMini({
+  final Duration _min;
+  final Duration _max;
+
+  const CircularProgressMini({
     Key? key,
     required Duration max,
     Duration min = Duration.zero,
-  }) : super(key: key) {
-    _min = min;
-    _max = max;
-  }
-
-  late Duration _min;
-  late Duration _max;
+  })  : _min = min,
+        _max = max,
+        super(key: key);
 
   @override
   State<CircularProgressMini> createState() => _CircularProgressMiniState();
@@ -29,16 +28,14 @@ class _CircularProgressMiniState extends State<CircularProgressMini> {
   late Timer timer;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {});
     });
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     timer.cancel();
     super.dispose();
   }
@@ -66,7 +63,7 @@ class _CircularProgressMiniState extends State<CircularProgressMini> {
         ),
         customColors: CustomSliderColors(
           progressBarColor: kBaseCounterColor,
-          trackColor: kWhiteTranslucent,
+          trackColor: kCircularProgressBarTrackColor,
         ),
       ),
     );

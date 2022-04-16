@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:tune/utils/constant.dart';
 import 'package:flutter_glow/flutter_glow.dart';
+
+import 'package:tune/utils/constants/system_constants.dart';
 import 'package:tune/utils/logo/logo_icons.dart';
 
 class TuneLogo extends StatelessWidget {
-  TuneLogo({Key? key, this.logoSize = kDefaultLogoSize}) : super(key: key);
-  double logoSize;
+  final double logoSize;
+
+  const TuneLogo({Key? key, this.logoSize = kDefaultLogoSize})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +18,7 @@ class TuneLogo extends StatelessWidget {
         GlowIcon(
           // Giving the blur for glow effect
           Logo.logo,
-          glowColor: kGreen,
+          glowColor: kTuneLogoBackgroundGlowColor,
           color: Colors.transparent,
           blurRadius: 15,
           size: logoSize,
@@ -34,7 +37,7 @@ class TuneLogo extends StatelessWidget {
           shaderCallback: (Rect bounds) {
             Rect rect = Rect.fromLTRB(0, 0, logoSize, logoSize);
             return const LinearGradient(
-                    colors: [kGreen, kDeepYellow],
+                    colors: kTuneLogoGradientColor,
                     begin: Alignment.bottomLeft,
                     end: Alignment.topRight)
                 .createShader(rect);

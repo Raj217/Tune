@@ -11,7 +11,7 @@ import 'package:tune/screens/local_audio_screen.dart';
 import 'package:tune/screens/splash_screen.dart';
 import 'package:tune/screens/playlist_screen.dart';
 
-import 'screens/audio_player.dart';
+import 'screens/audio_player_screen.dart';
 import 'utils/provider/music/music_handler_admin.dart';
 import 'utils/provider/states/screen_state_tracker.dart';
 
@@ -37,7 +37,7 @@ class Tune extends StatelessWidget {
         theme: ThemeData.dark(),
         initialRoute: SplashScreen.id,
         routes: {
-          AudioPlayer.id: (BuildContext context) => AudioPlayer(),
+          AudioPlayer.id: (BuildContext context) => const AudioPlayer(),
           BottomNavigator.id: (BuildContext context) => const BottomNavigator(),
           HomeScreen.id: (BuildContext context) => const HomeScreen(),
           LocalAudioScreen.id: (BuildContext context) =>

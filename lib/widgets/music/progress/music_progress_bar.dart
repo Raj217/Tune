@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
-import 'package:tune/utils/constant.dart';
 import 'package:provider/provider.dart';
+
+import 'package:tune/utils/constants/system_constants.dart';
 import 'package:tune/utils/provider/music/music_handler_admin.dart';
 import 'package:tune/utils/formatter.dart';
 
 class MusicProgressBar extends StatefulWidget {
-  MusicProgressBar({
+  final Duration _min;
+  final Duration _max;
+
+  const MusicProgressBar({
     Key? key,
     required Duration max,
     Duration min = Duration.zero,
-  }) : super(key: key) {
-    _min = min;
-    _max = max;
-  }
-
-  late Duration _min;
-  late Duration _max;
+  })  : _min = min,
+        _max = max,
+        super(key: key);
 
   @override
   State<MusicProgressBar> createState() => _MusicProgressBarState();
@@ -30,7 +30,6 @@ class _MusicProgressBarState extends State<MusicProgressBar>
   late AnimationController _opacityController;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
     _opacityController = AnimationController(
@@ -42,7 +41,6 @@ class _MusicProgressBarState extends State<MusicProgressBar>
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     _opacityController.dispose();
   }
@@ -66,14 +64,15 @@ class _MusicProgressBarState extends State<MusicProgressBar>
               opacity: _opacityController.value,
               child: Container(
                 decoration: const BoxDecoration(
-                    color: kGray,
+                    color: kProgressOnChangeTextBGColor,
                     borderRadius: BorderRadius.all(Radius.circular(10))),
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
                     Formatter.durationFormatted(
                         Duration(milliseconds: val.toInt())),
-                    style: kBaseTextStyle.copyWith(fontWeight: FontWeight.w600),
+                    style: kAudioArtistTextStyle.copyWith(
+                        color: kProgressOnChangeTextColor),
                   ),
                 ),
               ),
@@ -110,7 +109,7 @@ class _MusicProgressBarState extends State<MusicProgressBar>
             ),
             customColors: CustomSliderColors(
               progressBarColors: [kBaseCounterColor, kBaseColor],
-              trackColor: kWhite,
+              trackColor: kCircularProgressBarTrackColor,
             ),
             customWidths: CustomSliderWidths(
                 progressBarWidth: 5, handlerSize: 0, trackWidth: 1),

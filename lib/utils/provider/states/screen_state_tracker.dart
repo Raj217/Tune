@@ -5,7 +5,7 @@ import 'package:tune/screens/playlist_screen.dart';
 
 class ScreenStateTracker extends ChangeNotifier {
   /// Index of Screen
-  int _index = 2;
+  int _index = 1;
 
   /// List of Screens
   final List screens = const [

@@ -45,4 +45,13 @@ class Formatter {
     }
     return text;
   }
+
+  static String extractSongNameFromPath(String filePath) {
+    List<String> loc = filePath.split('/');
+    String songName = loc[loc.length - 1];
+
+    List<String> dots = songName.split('.');
+
+    return songName.substring(0, songName.indexOf(dots[dots.length - 1]) - 1);
+  }
 }

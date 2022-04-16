@@ -8,22 +8,24 @@ import 'dart:math';
 import 'dart:async';
 import 'package:text_scroll/text_scroll.dart';
 
-import 'package:tune/utils/constant.dart';
+import 'package:tune/utils/constants/system_constants.dart';
 import 'package:tune/utils/formatter.dart';
 import 'package:tune/utils/provider/music/music_handler_admin.dart';
 import 'package:tune/widgets/music/progress/music_progress_bar.dart';
 import 'package:tune/widgets/music/progress/music_progress_digital.dart';
 import 'package:tune/widgets/img/poster.dart';
+import 'package:tune/widgets/buttons/extended_button.dart';
+import 'package:tune/widgets/others/scrolling_text.dart';
 
 class AudioPlayer extends StatefulWidget {
-  AudioPlayer(
+  const AudioPlayer(
       {Key? key,
       this.totalDuration = kDurationNotInitialised,
       this.position = Duration.zero})
       : super(key: key);
-  static String id = 'Current Music Screen';
-  Duration totalDuration;
-  Duration position;
+  static String id = 'Audio Player Screen';
+  final Duration totalDuration;
+  final Duration position;
 
   @override
   State<AudioPlayer> createState() => _AudioPlayerState();
@@ -57,7 +59,6 @@ class _AudioPlayerState extends State<AudioPlayer>
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     lockPortraitMode();
     setBottomNavBarColor(kBackgroundColor);
@@ -104,7 +105,7 @@ class _AudioPlayerState extends State<AudioPlayer>
                       Padding(
                         padding:
                             EdgeInsets.only(bottom: screenSize.height / 15),
-                        child: Poster(),
+                        child: const Poster(),
                       ),
                       MusicProgressBar(
                         max: totalDuration,
@@ -145,32 +146,15 @@ class _AudioPlayerState extends State<AudioPlayer>
                   Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        SizedBox(
-                          width: audioTitleWidth,
-                          child: Center(
-                            child: TextScroll(
-                                Formatter.scrollText(
-                                    width: audioTitleWidth,
-                                    style: kAudioTitleTextStyle,
-                                    text: handler.getAudioHandler.mediaItem
-                                        .value?.title),
-                                velocity: kTextAutoScrollVelocity,
-                                style: kAudioTitleTextStyle),
-                          ),
-                        ),
-                        SizedBox(
-                          width: audioArtistWidth,
-                          child: Center(
-                            child: TextScroll(
-                              Formatter.scrollText(
-                                  width: audioArtistWidth,
-                                  text: handler.getMetaData?.artist,
-                                  style: kAudioArtistTextStyle),
-                              velocity: kTextAutoScrollVelocity,
-                              style: kAudioArtistTextStyle,
-                            ),
-                          ),
-                        )
+                        ScrollingText(
+                            text:
+                                handler.getAudioHandler.mediaItem.value?.title,
+                            width: audioTitleWidth,
+                            style: kAudioTitleTextStyle),
+                        ScrollingText(
+                            text: handler.getMetaData?.artist,
+                            width: audioArtistWidth,
+                            style: kAudioArtistTextStyle),
                       ]),
                   const SizedBox(
                     height: 40,
@@ -182,10 +166,10 @@ class _AudioPlayerState extends State<AudioPlayer>
                       builder: (context, snapshot) {
                         final playing = snapshot.data ?? false;
                         return Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            GestureDetector(
+                            ExtendedButton(
                                 child: Lottie.asset(
                                     kDefaultLottieAnimationsPath +
                                         '/favorite.json',
@@ -203,88 +187,42 @@ class _AudioPlayerState extends State<AudioPlayer>
                                             _favoriteIconController.reset());
                                   });
                                 }),
-                            GestureDetector(
-                                child: SvgPicture.asset(
-                                  '$kIconsPath/changeSong.svg',
-                                  height: 25,
-                                  color: kBaseColor,
+                            ExtendedButton(
+                                extendedRadius: 70,
+                                iconName: 'changeSong',
+                                iconHeight: 25,
+                                iconColor: kBaseColor,
+                                onTap: () {} // TODO: implement
                                 ),
-                                onTap: () {}),
-                            if (playing)
-                              GestureDetector(
-                                  child: Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      const Icon(
-                                        Icons.circle,
-                                        color: kBaseColor,
-                                        size: 80,
-                                      ),
-                                      SvgPicture.asset(
-                                        '$kIconsPath/pause.svg',
-                                        height: 25,
-                                        color: kBackgroundColor,
-                                      ),
-                                    ],
-                                  ),
-                                  onTap: () {
-                                    handler.getAudioHandler.pause();
-                                  })
-                            else
-                              GestureDetector(
-                                  child: Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      const Icon(
-                                        Icons.circle,
-                                        color: kBaseColor,
-                                        size: 80,
-                                      ),
-                                      SvgPicture.asset(
-                                        '$kIconsPath/play.svg',
-                                        height: 25,
-                                        color: kBackgroundColor,
-                                      ),
-                                    ],
-                                  ),
-                                  onTap: () {
-                                    handler.getAudioHandler.play();
-                                  }),
-                            GestureDetector(
-                                child: Transform.rotate(
-                                  alignment: Alignment.center,
-                                  angle: pi,
-                                  child: SvgPicture.asset(
-                                    '$kIconsPath/changeSong.svg',
-                                    height: 25,
-                                    color: kBaseColor,
-                                  ),
-                                ),
+                            ExtendedButton(
+                                extendedRadius: 80,
+                                extendedBGColor: kBaseColor,
+                                iconName: (playing ? 'pause' : 'play'),
+                                iconHeight: 25,
+                                iconColor: kBackgroundColor,
                                 onTap: () {
-                                  handler.getAudioHandler
-                                      .skipToNext; // TODO: Implement
+                                  playing
+                                      ? handler.getAudioHandler.pause()
+                                      : handler.getAudioHandler.play();
                                 }),
-                            GestureDetector(
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    const Icon(
-                                      Icons.circle,
-                                      color: Colors.transparent,
-                                      size: 40,
-                                    ),
-                                    SvgPicture.asset(
-                                      kIconsPath +
-                                          (playlistMode == 0
-                                              ? '/repeat.svg'
-                                              : playlistMode == 1
-                                                  ? '/repeat_this_song.svg'
-                                                  : '/shuffle.svg'),
-                                      height: 16,
-                                      color: kGrayLight,
-                                    ),
-                                  ],
+                            ExtendedButton(
+                                extendedRadius: 70,
+                                angle: pi,
+                                iconName: 'changeSong',
+                                iconHeight: 25,
+                                iconColor: kBaseColor,
+                                onTap: () {
+                                  handler.getAudioHandler.skipToNext();
+                                } // TODO: Implement
                                 ),
+                            ExtendedButton(
+                                extendedRadius: 55,
+                                iconName: (playlistMode == 0
+                                    ? 'repeat'
+                                    : playlistMode == 1
+                                        ? 'repeat_this_song'
+                                        : 'shuffle'),
+                                iconHeight: 16,
                                 onTap: () {
                                   setState(() {
                                     playlistMode++;
@@ -297,26 +235,13 @@ class _AudioPlayerState extends State<AudioPlayer>
                         );
                       }),
                   SizedBox(height: screenSize.height * 0.08),
-                  GestureDetector(
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          const Icon(
-                            Icons.circle,
-                            color: Colors.transparent,
-                            size: 50,
-                          ),
-                          SvgPicture.asset(
-                            '$kIconsPath/arrow.svg',
-                            height: 15,
-                            color: kBaseColor,
-                          ),
-                        ],
-                      ),
+                  ExtendedButton(
+                      iconName: 'arrow',
+                      iconColor: kBaseColor,
                       onTap: () {
                         timer.cancel();
                         Navigator.pop(context);
-                      })
+                      }),
                 ],
               ),
             );
