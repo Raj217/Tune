@@ -7,11 +7,18 @@ import 'dart:math';
 
 class PosterClipper extends CustomClipper<Path> {
   /// Creates the shape of the Poster
-  final double _height; // Height of the poster
-  final double _width; // width of the poster
-  final Offset _offset; // Offset of the poster
-  final double
-      _top; // Top coordinate of the poster (Useful in draw shadow in PosterShadow)
+
+  /// Height of the poster
+  final double _height;
+
+  /// width of the poster
+  final double _width;
+
+  /// Offset of the poster
+  final Offset _offset;
+
+  /// Top coordinate of the poster (Useful in draw shadow in PosterShadow)
+  final double _top;
   const PosterClipper(
       {required double height,
       required double width,

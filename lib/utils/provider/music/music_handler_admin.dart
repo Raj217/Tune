@@ -12,11 +12,41 @@ import 'package:tune/utils/storage/file_handler.dart';
 import 'package:tune/utils/constants/system_constants.dart';
 import '../../formatter.dart';
 
+enum PlayMode {
+  /// Repeat all the audios in the playlist
+  repeatAll,
+
+  /// Repeat only this audio
+  repeatThis,
+
+  /// Shuffle and keep on playing the playlist, on end repeat the current playlist pattern
+  shuffleRepeat,
+
+  /// Shuffle and keep on playing the playlist, on end reshuffle the playlist
+  shuffleShuffle,
+
+  /// Stop once this audio is over
+  endAfterThis,
+
+  /// Stop once this playlist is over
+  endAfterPlaylist,
+}
+
 final _player = AudioPlayer();
 ID3Tag? _metaData;
 
 class MusicHandlerAdmin extends ChangeNotifier {
   late AudioHandler _audioHandler;
+
+  /// How do you want to repeat the song/playlist (allowed modes)
+  List<PlayMode> playlistAllowedModes = [
+    PlayMode.repeatAll,
+    PlayMode.repeatThis,
+    PlayMode.shuffleRepeat
+  ];
+
+  /// This keeps track of the current playlist mode for repeat, shuffle, etc
+  int playlistModeIndex = 0;
 
   Future<void> initAudioHandler(String filePath) async {
     try {
@@ -34,6 +64,17 @@ class MusicHandlerAdmin extends ChangeNotifier {
       _listenToPlaybackState();
     }
     return;
+  }
+
+  PlayMode get getPlaylistMode {
+    return playlistAllowedModes[playlistModeIndex];
+  }
+
+  void incrementPlaylistIndex() {
+    playlistModeIndex++;
+    if (playlistModeIndex >= playlistAllowedModes.length) {
+      playlistModeIndex = 0;
+    }
   }
 
   AudioHandler get getAudioHandler {
@@ -164,7 +205,6 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
 
   PlaybackState _transformEvent(PlaybackEvent event) {
     return PlaybackState(
-      repeatMode: AudioServiceRepeatMode.one,
       controls: [
         MediaControl.rewind,
         if (_player.playing) MediaControl.pause else MediaControl.play,

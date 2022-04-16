@@ -25,6 +25,13 @@ class _BottomNavigatorState extends State<BottomNavigator> {
     setBottomNavBarColor(kBaseCounterColor);
   }
 
+  SvgPicture _icon(String iconName) {
+    return SvgPicture.asset(
+      '$kDefaultIconsPath/$iconName',
+      color: kIconsColor,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
@@ -57,11 +64,4 @@ class _BottomNavigatorState extends State<BottomNavigator> {
       );
     });
   }
-}
-
-SvgPicture _icon(String iconName) {
-  return SvgPicture.asset(
-    '$kIconsPath/$iconName',
-    color: kIconsColor,
-  );
 }

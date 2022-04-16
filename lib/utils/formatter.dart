@@ -1,3 +1,4 @@
+/// For the normal static necessary conversions and formatting
 import 'package:flutter/material.dart';
 
 class Formatter {
@@ -39,14 +40,8 @@ class Formatter {
     return textPainter.size;
   }
 
-  static String stringOverflowHandler(String text, int maxLength) {
-    if (text.length > maxLength) {
-      text = text.substring(0, maxLength - 3) + '...';
-    }
-    return text;
-  }
-
   static String extractSongNameFromPath(String filePath) {
+    /// Extract the song name from a path string
     List<String> loc = filePath.split('/');
     String songName = loc[loc.length - 1];
 

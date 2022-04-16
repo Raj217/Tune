@@ -26,7 +26,7 @@ class FileHandler {
       {List<int>? fileBytes,
       String? fileContents,
       required String fileName}) async {
-    /// Either fileBytes should be supplied or files
+    /// Either fileBytes or files should be supplied
     Directory directory = await getApplicationDocumentsDirectory();
     String applicationDocumentPath = directory.path;
     String filePath = '$applicationDocumentPath/$fileName';

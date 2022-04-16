@@ -29,7 +29,7 @@ class _CircularProgressMiniState extends State<CircularProgressMini> {
   @override
   void initState() {
     super.initState();
-    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    timer = Timer.periodic(kDurationOneSecond, (timer) {
       setState(() {});
     });
   }

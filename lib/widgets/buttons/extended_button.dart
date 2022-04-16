@@ -3,38 +3,67 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:tune/utils/constants/system_constants.dart';
 
-GestureDetector ExtendedButton(
-    {double extendedRadius = 50,
-    Color extendedBGColor = Colors.transparent,
-    String? iconName,
-    double iconHeight = 15,
-    Color iconColor = kIconsColor,
-    double angle = 0,
-    Widget? child,
-    void Function()? onTap}) {
+class ExtendedButton extends StatelessWidget {
+  /// Radius of the circle so that this widget responds to onTap
+  final double extendedRadius;
+
+  /// Color of the BG, by default [Colors.transparent]
+  final Color extendedBGColor;
+
+  /// Svg file name of the icon (don't include .svg)
+  final String? iconName;
+
+  final double iconHeight;
+
+  final Color iconColor;
+
+  /// Angle of rotation of the Icon
+  final double angle;
+
+  /// In case a Svg icon is not used and something else is used
+  final Widget? child;
+
+  /// When tapped on the icon or extended region
+  final void Function()? onTap;
+
   /// Creates a button with extended area so that it will be easier for the
   /// user to tap and use that button
 
-  return GestureDetector(
-      child: Transform.rotate(
-        alignment: Alignment.center,
-        angle: angle,
-        child: Stack(
+  const ExtendedButton(
+      {Key? key,
+      this.extendedRadius = kDefaultExtendedButtonRadius,
+      this.extendedBGColor = Colors.transparent,
+      this.iconName,
+      this.iconHeight = kDefaultIconHeight,
+      this.iconColor = kIconsColor,
+      this.angle = 0,
+      this.child,
+      this.onTap})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+        child: Transform.rotate(
           alignment: Alignment.center,
-          children: [
-            Icon(
-              Icons.circle,
-              color: extendedBGColor,
-              size: extendedRadius,
-            ),
-            child ??
-                SvgPicture.asset(
-                  '$kIconsPath/$iconName.svg',
-                  height: iconHeight,
-                  color: iconColor,
-                ),
-          ],
+          angle: angle,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Icon(
+                Icons.circle,
+                color: extendedBGColor,
+                size: extendedRadius,
+              ),
+              child ??
+                  SvgPicture.asset(
+                    '$kDefaultIconsPath/$iconName.svg',
+                    height: iconHeight,
+                    color: iconColor,
+                  ),
+            ],
+          ),
         ),
-      ),
-      onTap: onTap);
+        onTap: onTap);
+  }
 }

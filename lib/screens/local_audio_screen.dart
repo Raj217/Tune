@@ -1,15 +1,15 @@
 /// Locally stored audio files tracking here
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
+
 import 'package:tune/utils/provider/music/music_handler_admin.dart';
 import 'package:tune/widgets/music/audio_player_mini.dart';
-import 'package:tune/widgets/others/vertical_scroll.dart';
-
-import '../utils/constants/system_constants.dart';
-import '../utils/formatter.dart';
-import '../utils/storage/file_handler.dart';
+import 'package:tune/widgets/overflow_handlers/vertical_scroll.dart';
+import 'package:tune/utils/constants/system_constants.dart';
+import 'package:tune/utils/formatter.dart';
+import 'package:tune/utils/storage/file_handler.dart';
+import 'package:tune/widgets/buttons/icon_button.dart';
 
 class LocalAudioScreen extends StatefulWidget {
   const LocalAudioScreen({Key? key}) : super(key: key);
@@ -43,24 +43,12 @@ class _LocalAudioScreenState extends State<LocalAudioScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  SvgPicture.asset(
-                    '$kIconsPath/menu.svg',
-                    color: kIconsColor,
-                    width: kDefaultIconWidth,
-                  ),
+                  const CustomIconButton(iconName: 'menu'),
                   Row(
-                    children: [
-                      SvgPicture.asset(
-                        '$kIconsPath/search.svg',
-                        color: kIconsColor,
-                        height: kDefaultIconHeight,
-                      ),
-                      const SizedBox(width: 15),
-                      SvgPicture.asset(
-                        '$kIconsPath/appOptions.svg',
-                        color: kIconsColor,
-                        width: kDefaultIconWidth,
-                      ),
+                    children: const [
+                      CustomIconButton(iconName: 'search'),
+                      SizedBox(width: 15),
+                      CustomIconButton(iconName: 'appOptions')
                     ],
                   )
                 ],

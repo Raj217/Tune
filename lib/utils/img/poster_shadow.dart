@@ -5,11 +5,20 @@ import 'package:flutter/material.dart';
 import 'package:tune/utils/img/poster_clipper.dart';
 
 class PosterShadow extends CustomPainter {
-  late double _height; // Height of the poster shadow
-  late double _width; // Width of the poster shadow
-  late double _spread; // Spread Radius of the shadow
-  late Color _color; // Color of the shadow
-  late Offset _offset; // Offset of the poster Shadow
+  /// Height of the poster shadow
+  late double _height;
+
+  /// Width of the poster shadow
+  late double _width;
+
+  /// Spread Radius of the shadow
+  late double _spread;
+
+  /// Color of the shadow
+  late Color _color;
+
+  /// Offset of the poster Shadow
+  late Offset _offset;
   PosterShadow(
       {required double height,
       required double width,

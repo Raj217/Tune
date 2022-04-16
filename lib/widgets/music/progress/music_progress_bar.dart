@@ -100,7 +100,7 @@ class _MusicProgressBarState extends State<MusicProgressBar>
           },
           appearance: CircularSliderAppearance(
             animationEnabled: false,
-            size: kImgWidth * 1.1,
+            size: kPosterImgWidth * 1.1,
             angleRange: 180,
             startAngle: 180,
             counterClockwise: true,

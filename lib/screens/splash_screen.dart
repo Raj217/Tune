@@ -6,7 +6,7 @@ import 'dart:async';
 
 import 'package:tune/widgets/others/tune_logo.dart';
 import 'package:tune/utils/constants/system_constants.dart';
-import 'package:tune/widgets/others/vertical_scroll.dart';
+import 'package:tune/widgets/overflow_handlers/vertical_scroll.dart';
 import 'bottom_navigator.dart';
 
 class SplashScreen extends StatefulWidget {

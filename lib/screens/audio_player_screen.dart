@@ -3,19 +3,16 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:math';
 import 'dart:async';
-import 'package:text_scroll/text_scroll.dart';
 
 import 'package:tune/utils/constants/system_constants.dart';
-import 'package:tune/utils/formatter.dart';
 import 'package:tune/utils/provider/music/music_handler_admin.dart';
 import 'package:tune/widgets/music/progress/music_progress_bar.dart';
 import 'package:tune/widgets/music/progress/music_progress_digital.dart';
 import 'package:tune/widgets/img/poster.dart';
 import 'package:tune/widgets/buttons/extended_button.dart';
-import 'package:tune/widgets/others/scrolling_text.dart';
+import 'package:tune/widgets/overflow_handlers/scrolling_text.dart';
 
 class AudioPlayer extends StatefulWidget {
   const AudioPlayer(
@@ -39,27 +36,33 @@ class _AudioPlayerState extends State<AudioPlayer>
   /// Current position of the audio
   late Duration position;
 
+  /// To redraw the screen every second (implemented in initState)
   late Timer timer;
 
+  late Size screenSize;
+
+  /// Allowed width for audio title beyond which text will start scrolling
+  late double audioTitleWidth;
+
+  /// Allowed width for audio artist beyond which text will start scrolling
+  late double audioArtistWidth;
+
+  /// To add this audio in the favorite category
+  bool favorite = false;
+
+  /// Control the lottie animation of favoring and unfavored
+  late AnimationController _favoriteIconController;
+
+  /// Card Button Colors
   List<Color> cardButtonColor = [
     kActiveCardButtonColor,
     kInactiveCardButtonColor
   ];
-  late Size screenSize;
-  late double audioTitleWidth;
-  late double audioArtistWidth;
-  String? songPath;
-  bool favorite = false;
-  late AnimationController _favoriteIconController;
-
-  /// 0: repeat
-  /// 1: repeat this song
-  /// 2: shuffle
-  int playlistMode = 0;
 
   @override
   void initState() {
     super.initState();
+
     lockPortraitMode();
     setBottomNavBarColor(kBackgroundColor);
 
@@ -69,13 +72,13 @@ class _AudioPlayerState extends State<AudioPlayer>
     _favoriteIconController = AnimationController(vsync: this)
       ..addListener(() {
         if (favorite == true && _favoriteIconController.value >= 0.6) {
-          _favoriteIconController.stop();
+          _favoriteIconController.stop(); // for liking animation
         }
       });
 
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-        setState(() {});
+      timer = Timer.periodic(kDurationOneSecond, (timer) {
+        setState(() {}); // Update the screen every second
       });
     });
   }
@@ -84,6 +87,14 @@ class _AudioPlayerState extends State<AudioPlayer>
     screenSize = MediaQuery.of(context).size;
     audioTitleWidth = screenSize.width * 0.8;
     audioArtistWidth = screenSize.width * 0.8;
+  }
+
+  Icon _cardButton(int index) {
+    return Icon(
+      Icons.circle,
+      color: cardButtonColor[index],
+      size: kDefaultCardButtonSize,
+    );
   }
 
   @override
@@ -115,22 +126,11 @@ class _AudioPlayerState extends State<AudioPlayer>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      GestureDetector(
-                          child: Icon(
-                            Icons.circle,
-                            color: cardButtonColor[0],
-                            size: 10,
-                          ),
-                          onTap: () {}),
+                      GestureDetector(child: _cardButton(0), onTap: () {}),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 3.0),
                         child: GestureDetector(
-                            child: Icon(
-                              Icons.circle,
-                              color: cardButtonColor[1],
-                              size: 10,
-                            ),
-                            onTap: () {}),
+                            child: _cardButton(1), onTap: () {}),
                       )
                     ],
                   ),
@@ -217,18 +217,17 @@ class _AudioPlayerState extends State<AudioPlayer>
                                 ),
                             ExtendedButton(
                                 extendedRadius: 55,
-                                iconName: (playlistMode == 0
+                                iconName: (handler.getPlaylistMode ==
+                                        PlayMode.repeatAll
                                     ? 'repeat'
-                                    : playlistMode == 1
+                                    : handler.getPlaylistMode ==
+                                            PlayMode.repeatThis
                                         ? 'repeat_this_song'
                                         : 'shuffle'),
                                 iconHeight: 16,
                                 onTap: () {
                                   setState(() {
-                                    playlistMode++;
-                                    if (playlistMode > 2) {
-                                      playlistMode = 0;
-                                    }
+                                    handler.incrementPlaylistIndex();
                                   });
                                 }),
                           ],

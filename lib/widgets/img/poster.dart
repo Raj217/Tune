@@ -25,9 +25,9 @@ class Poster extends StatefulWidget {
 
   const Poster(
       {Key? key,
-      double height = kImgHeight,
-      double width = kImgWidth,
-      double spread = kImgSpread})
+      double height = kPosterImgHeight,
+      double width = kPosterImgWidth,
+      double spread = kPosterImgSpread})
       : _height = height,
         _width = width,
         _spread = spread,

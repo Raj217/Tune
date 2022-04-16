@@ -1,14 +1,14 @@
 /// Currently playing playlist screen
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 import 'package:tune/utils/constants/system_constants.dart';
 import 'package:tune/utils/provider/music/music_handler_admin.dart';
 import 'package:tune/widgets/img/poster.dart';
 import 'package:tune/widgets/music/audio_player_mini.dart';
-import 'package:tune/widgets/others/vertical_scroll.dart';
+import 'package:tune/widgets/overflow_handlers/vertical_scroll.dart';
+import 'package:tune/widgets/buttons/icon_button.dart';
 
 class PlaylistScreen extends StatefulWidget {
   const PlaylistScreen({Key? key}) : super(key: key);
@@ -40,25 +40,15 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
             children: [
               Stack(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 15, left: 10),
-                    child: SvgPicture.asset(
-                      '$kIconsPath/menu.svg',
-                      color: kIconsColor,
-                      width: kDefaultIconWidth,
-                    ),
-                  ),
+                  const CustomIconButton(
+                      iconName: 'menu',
+                      padding: EdgeInsets.only(top: 15, left: 10)),
                   const Poster(),
-                  Padding(
-                    padding: EdgeInsets.only(
-                        top: 15,
-                        left: screenSize.width - kDefaultIconWidth - 10),
-                    child: SvgPicture.asset(
-                      '$kIconsPath/appOptions.svg',
-                      color: kIconsColor,
-                      width: kDefaultIconWidth,
-                    ),
-                  ),
+                  CustomIconButton(
+                      iconName: 'appOptions',
+                      padding: EdgeInsets.only(
+                          top: 15,
+                          left: screenSize.width - kDefaultIconWidth - 10)),
                 ],
               ),
               AudioPlayerMini()

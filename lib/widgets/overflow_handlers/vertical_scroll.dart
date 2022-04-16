@@ -1,3 +1,9 @@
+/// Used to create a vertical scrolling view soo that in case the phone size is
+/// too small the app contents are scrollable
+/// NOTE: It also includes the safe area
+///
+/// TODO: Bug with bottom navigator
+
 import 'package:flutter/material.dart';
 
 class VerticalScroll extends StatelessWidget {

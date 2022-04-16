@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:tune/utils/constants/system_constants.dart';
-import 'package:tune/widgets/others/vertical_scroll.dart';
+import 'package:tune/widgets/overflow_handlers/vertical_scroll.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
