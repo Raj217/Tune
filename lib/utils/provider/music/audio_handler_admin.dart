@@ -1,8 +1,10 @@
 /// The base file for handling all music related functions
 
+import 'dart:async';
 import 'dart:typed_data';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:id3tag/id3tag.dart';
@@ -32,14 +34,20 @@ enum PlayMode {
   endAfterPlaylist,
 }
 
-final _player = AudioPlayer();
+final AudioPlayer _player = AudioPlayer();
 ID3Tag? _metaData;
+List<MediaItem> _audioData = <MediaItem>[];
+ValueNotifier<int> _currentlyPlayingAudioIndex = ValueNotifier(-1);
+bool _isUpdating = false;
 
-class MusicHandlerAdmin extends ChangeNotifier {
-  late AudioHandler _audioHandler;
+class AudioHandlerAdmin extends ChangeNotifier {
+  final AudioHandler _audioHandler;
+  final ConcatenatingAudioSource _playlist =
+      ConcatenatingAudioSource(children: []);
+  final ValueNotifier<int> _nAudioValueNotifier = ValueNotifier(0);
 
   /// How do you want to repeat the song/playlist (allowed modes)
-  List<PlayMode> playlistAllowedModes = [
+  final List<PlayMode> playlistAllowedModes = [
     PlayMode.repeatAll,
     PlayMode.repeatThis,
     PlayMode.shuffleRepeat
@@ -48,26 +56,10 @@ class MusicHandlerAdmin extends ChangeNotifier {
   /// This keeps track of the current playlist mode for repeat, shuffle, etc
   int playlistModeIndex = 0;
 
-  Future<void> initAudioHandler(String filePath) async {
-    try {
-      await _audioHandler
-          .addQueueItem(await AudioPlayerHandler.getMediaData(filePath));
-    } catch (e) {
-      // Not initialized audio service
-      _audioHandler = await AudioService.init(
-          builder: () => AudioPlayerHandler(filePath),
-          config: const AudioServiceConfig(
-            androidNotificationChannelId: 'com.ryanheise.myapp.channel.audio',
-            androidNotificationChannelName: 'Audio playback',
-            androidNotificationOngoing: true,
-          ));
-      _listenToPlaybackState();
-    }
-    return;
-  }
-
-  PlayMode get getPlaylistMode {
-    return playlistAllowedModes[playlistModeIndex];
+  AudioHandlerAdmin({required AudioHandler audioHandler})
+      : _audioHandler = audioHandler {
+    _listenToPlaybackState();
+    _player.setAudioSource(_playlist);
   }
 
   void incrementPlaylistIndex() {
@@ -77,28 +69,58 @@ class MusicHandlerAdmin extends ChangeNotifier {
     }
   }
 
-  AudioHandler get getAudioHandler {
-    return _audioHandler;
+  void _listenToPlaybackState() {
+    _audioHandler.playbackState.listen((playbackState) {
+      if (playbackState.position >= getTotalDuration) {
+        _audioHandler.seek(Duration.zero);
+        _audioHandler.pause();
+      }
+    });
   }
 
-  ID3Tag? get getMetaData {
-    return _metaData;
+  Future<void> addAudio({required String path, String? tag}) async {
+    await _playlist.add(AudioSource.uri(Uri.file(path), tag: tag ?? path));
+    _audioData.add(await AudioPlayerHandler.getMediaData(path));
+    _nAudioValueNotifier.value += 1;
+    if (_audioHandler.mediaItem.value?.title == null) {
+      _currentlyPlayingAudioIndex.value = 0;
+      await _audioHandler.updateMediaItem(_audioData[_player.currentIndex!]);
+    }
+    return;
   }
+
+  // ------------------------------ Getter Methods ------------------------------
+
+  PlayMode get getPlaylistMode => playlistAllowedModes[playlistModeIndex];
+  AudioHandler get getAudioHandler => _audioHandler;
+  ID3Tag? get getMetaData => _metaData;
 
   String get getTitle {
     try {
-      return _audioHandler.mediaItem.value?.title ?? 'Untitled Song';
+      return _audioHandler.mediaItem.value?.title ?? kDefaultSongName;
     } catch (e) {
-      return 'Untitled Song';
+      return kDefaultSongName;
     }
   }
 
-  AudioPlayer get getPlayer {
-    if (_player.position >= getTotalDuration) {
-      _player.seek(Duration.zero);
-      _player.pause();
+  AudioPlayer get getPlayer => _player;
+  Duration get getTotalDuration => _player.duration ?? kDurationNotInitialised;
+  Duration get getPosition => _player.position;
+  bool get getIsPlaying => _player.playing;
+  List<MediaItem> get getAudioData => _audioData;
+  ValueNotifier<int> get getNAudioValueNotifier => _nAudioValueNotifier;
+  ValueNotifier<int> get getCurrentlyPlayingAudioIndex =>
+      _currentlyPlayingAudioIndex;
+  bool get getIsUpdating => _isUpdating;
+  Future<void> updateMediaItem() async {
+    if (_audioHandler.mediaItem !=
+        _audioData[_currentlyPlayingAudioIndex.value]) {
+      await _audioHandler
+          .updateMediaItem(_audioData[_player.currentIndex!])
+          .then((value) {
+        notifyListeners();
+      });
     }
-    return _player;
   }
 
   @override
@@ -106,40 +128,14 @@ class MusicHandlerAdmin extends ChangeNotifier {
     super.dispose();
     _player.dispose();
   }
-
-  Duration get getTotalDuration {
-    return _player.duration ?? kDurationNotInitialised;
-  }
-
-  Duration get getPosition {
-    return _player.position;
-  }
-
-  bool get getIsPlaying {
-    return _player.playing;
-  }
-
-  void _listenToPlaybackState() {
-    _audioHandler.playbackState.listen((playbackState) {
-      if (playbackState.position >= getTotalDuration) {
-        _audioHandler.seek(Duration.zero);
-
-        _audioHandler.pause();
-      }
-    });
-  }
 }
 
-/// Handles the current audio
-///
-
 class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
-  AudioPlayerHandler(String filePath) {
+  AudioPlayerHandler() {
     // So that our clients (the Flutter UI and the system notification) know
     // what states to display, here we set up our audio handler to broadcast all
     // playback states changes as they happen via playbackState...
     _player.playbackEventStream.map(_transformEvent).pipe(playbackState);
-    initSong(filePath);
   }
   static Future<MediaItem> getMediaData(String filePath) async {
     final parser = ID3TagReader(File(filePath));
@@ -164,14 +160,14 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
         await FileHandler.save(fileBytes: imgBytes, fileName: 'poster_img.txt');
 
     final item = MediaItem(
-      id: filePath,
-      album: _metaData!.album,
-      title: _metaData!.title != null
-          ? _metaData!.title!
-          : Formatter.extractSongNameFromPath(filePath),
-      artist: _metaData!.artist,
-      artUri: Uri.file(posterPath),
-    );
+        id: filePath,
+        album: _metaData!.album,
+        title: _metaData!.title != null
+            ? _metaData!.title!
+            : Formatter.extractSongNameFromPath(filePath),
+        artist: _metaData!.artist,
+        artUri: Uri.file(posterPath),
+        extras: {'path': filePath});
     AudioPlayer tempPlayer = AudioPlayer();
     await tempPlayer.setFilePath(filePath);
     return item.copyWith(duration: tempPlayer.duration);
@@ -185,7 +181,10 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
   }
 
   @override
-  Future<void> play() => _player.play();
+  Future<void> play() async {
+    _player.play();
+    _currentlyPlayingAudioIndex.value = _player.currentIndex ?? -1;
+  }
 
   @override
   Future<void> pause() => _player.pause();
@@ -197,25 +196,57 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
   Future<void> stop() => _player.stop();
 
   @override
-  Future<void> skipToNext() async {
-    if (_player.hasNext) {
-      _player.seekToNext();
+  Future<void> skipToPrevious() async {
+    if (_player.hasPrevious && !_isUpdating) {
+      _isUpdating = true;
+      _player.seekToPrevious();
+      await updateMediaItem(_audioData[_player.currentIndex!])
+          .then((value) => _isUpdating = false);
+      _currentlyPlayingAudioIndex.value = _player.currentIndex ?? -1;
     }
+  }
+
+  @override
+  Future<void> skipToNext() async {
+    if (_player.hasNext && !_isUpdating) {
+      _isUpdating = true;
+      _player.seekToNext();
+      await updateMediaItem(_audioData[_player.currentIndex!])
+          .then((value) => _isUpdating = false);
+      _currentlyPlayingAudioIndex.value = _player.currentIndex ?? -1;
+    }
+  }
+
+  @override
+  Future<void> skipToQueueItem(int index) async {
+    if (!_isUpdating) {
+      _isUpdating = true;
+      _player.seek(Duration.zero, index: index);
+      await updateMediaItem(_audioData[index])
+          .then((value) => _isUpdating = false);
+    }
+  }
+
+  @override
+  Future<void> updateMediaItem(MediaItem mItem) async {
+    mediaItem.add(mItem);
   }
 
   PlaybackState _transformEvent(PlaybackEvent event) {
     return PlaybackState(
       controls: [
+        MediaControl.skipToPrevious,
         MediaControl.rewind,
         if (_player.playing) MediaControl.pause else MediaControl.play,
         MediaControl.fastForward,
+        MediaControl.skipToNext
       ],
       systemActions: const {
         MediaAction.seek,
         MediaAction.seekForward,
         MediaAction.seekBackward,
       },
-      androidCompactActionIndices: const [0, 1, 2],
+      androidCompactActionIndices: const [1, 2, 3],
       processingState: const {
         ProcessingState.idle: AudioProcessingState.idle,
         ProcessingState.loading: AudioProcessingState.loading,

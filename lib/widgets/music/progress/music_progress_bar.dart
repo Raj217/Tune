@@ -3,7 +3,7 @@ import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 import 'package:provider/provider.dart';
 
 import 'package:tune/utils/constants/system_constants.dart';
-import 'package:tune/utils/provider/music/music_handler_admin.dart';
+import 'package:tune/utils/provider/music/audio_handler_admin.dart';
 import 'package:tune/utils/formatter.dart';
 
 class MusicProgressBar extends StatefulWidget {
@@ -47,7 +47,7 @@ class _MusicProgressBarState extends State<MusicProgressBar>
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<MusicHandlerAdmin>(
+    return Consumer<AudioHandlerAdmin>(
       builder: (context, handler, _) {
         Duration pos = handler.getPosition;
         if (!userChangingBar) {

@@ -11,11 +11,11 @@ class ExtendedButton extends StatelessWidget {
   final Color extendedBGColor;
 
   /// Svg file name of the icon (don't include .svg)
-  final String? iconName;
+  final String? svgName;
 
-  final double iconHeight;
+  final double svgHeight;
 
-  final Color iconColor;
+  final Color svgColor;
 
   /// Angle of rotation of the Icon
   final double angle;
@@ -33,9 +33,9 @@ class ExtendedButton extends StatelessWidget {
       {Key? key,
       this.extendedRadius = kDefaultExtendedButtonRadius,
       this.extendedBGColor = Colors.transparent,
-      this.iconName,
-      this.iconHeight = kDefaultIconHeight,
-      this.iconColor = kIconsColor,
+      this.svgName,
+      this.svgHeight = kDefaultIconHeight,
+      this.svgColor = kIconsColor,
       this.angle = 0,
       this.child,
       this.onTap})
@@ -57,9 +57,9 @@ class ExtendedButton extends StatelessWidget {
               ),
               child ??
                   SvgPicture.asset(
-                    '$kDefaultIconsPath/$iconName.svg',
-                    height: iconHeight,
-                    color: iconColor,
+                    '$kDefaultIconsPath/$svgName.svg',
+                    height: svgHeight,
+                    color: svgColor,
                   ),
             ],
           ),

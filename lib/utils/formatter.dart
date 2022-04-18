@@ -20,11 +20,30 @@ class Formatter {
       int gap = 13}) {
     /// Adds Gap to the text
     if (text != null) {
-      Size _txtSize = Formatter.textSize(text, style);
+      Size _txtSize = textSize(text, style);
       if (_txtSize.width < width) {
         gap = 0;
       }
       return (text + ' ' * gap);
+    } else {
+      return ' ';
+    }
+  }
+
+  static String stringOverflowHandler(
+      {String? text, required double width, required TextStyle style}) {
+    if (text != null) {
+      Size _txtSize = textSize(text, style);
+      if (_txtSize.width < width) {
+        return text;
+      } else {
+        String outText = text[0];
+        int ind = 1;
+        while (textSize(outText + '...', style).width <= width) {
+          outText += text[ind++];
+        }
+        return outText + '...';
+      }
     } else {
       return ' ';
     }

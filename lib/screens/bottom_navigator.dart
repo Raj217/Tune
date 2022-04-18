@@ -6,7 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 import 'package:tune/utils/constants/system_constants.dart';
-import 'package:tune/utils/provider/states/screen_state_tracker.dart';
+import 'package:tune/utils/states/screen_state_tracker.dart';
 
 class BottomNavigator extends StatefulWidget {
   const BottomNavigator({Key? key}) : super(key: key);

@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:tune/utils/provider/music/music_handler_admin.dart';
-import 'package:tune/widgets/music/audio_player_mini.dart';
+import 'package:tune/utils/provider/music/audio_handler_admin.dart';
+import 'package:tune/widgets/music/display/audio_player_mini.dart';
 import 'package:tune/widgets/overflow_handlers/vertical_scroll.dart';
 import 'package:tune/utils/constants/system_constants.dart';
 import 'package:tune/utils/formatter.dart';
@@ -34,7 +34,7 @@ class _LocalAudioScreenState extends State<LocalAudioScreen> {
     Size screenSize = MediaQuery.of(context).size;
     return VerticalScroll(
       screenSize: screenSize,
-      child: Consumer<MusicHandlerAdmin>(builder: (context, handler, _) {
+      child: Consumer<AudioHandlerAdmin>(builder: (context, handler, _) {
         return Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -67,7 +67,7 @@ class _LocalAudioScreenState extends State<LocalAudioScreen> {
                           songName =
                               Formatter.extractSongNameFromPath(filePath);
                           await handler
-                              .initAudioHandler(filePath)
+                              .addAudio(path: filePath)
                               .then((value) => setState(() {
                                     _audioPlayerMini = AudioPlayerMini(
                                       songName: songName,

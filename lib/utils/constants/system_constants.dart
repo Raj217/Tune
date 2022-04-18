@@ -19,7 +19,7 @@ const Duration kDurationProgressBarOnChangeOpacity =
 /// Duration of 1 cycle of flowing liquid lottie animation
 const Duration kDefaultLiquidAnimDuration = Duration(seconds: 3);
 
-// ------------------------------- Default Color -------------------------------
+// ------------------------------- Color -------------------------------
 // ---------------------------- Primary Color ----------------------------
 const Color kBackgroundColor = kBlack;
 const Color kBaseColor = kYellow;
@@ -62,6 +62,9 @@ const Color kPosterShadowColor2 = kWhiteTranslucent;
 
 /// Track Color of the progress bars
 const Color kCircularProgressBarTrackColor = kWhiteTranslucent;
+
+// ---------------------------- Names ----------------------------
+const kDefaultSongName = 'Untitled Song';
 
 // ---------------------------- Paths ----------------------------
 const String kDefaultIconsPath = 'assets/icons';

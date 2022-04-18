@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 import 'package:tune/utils/img/poster_shadow.dart';
-import 'package:tune/utils/provider/music/music_handler_admin.dart';
+import 'package:tune/utils/provider/music/audio_handler_admin.dart';
 import 'package:tune/utils/img/cache_image_provider.dart';
 import 'package:tune/utils/constants/system_constants.dart';
 import 'package:tune/utils/img/poster_clipper.dart';
@@ -45,7 +45,7 @@ class _PosterState extends State<Poster> {
       posterImg = Image(
         image: CacheImageProvider(
           '',
-          Uint8List.fromList(Provider.of<MusicHandlerAdmin>(context)
+          Uint8List.fromList(Provider.of<AudioHandlerAdmin>(context)
               .getMetaData!
               .pictures[0]
               .imageData),

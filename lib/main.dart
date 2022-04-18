@@ -3,6 +3,7 @@
 ///
 /// A music app
 
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tune/screens/bottom_navigator.dart';
@@ -12,10 +13,18 @@ import 'package:tune/screens/splash_screen.dart';
 import 'package:tune/screens/playlist_screen.dart';
 
 import 'screens/audio_player_screen.dart';
-import 'utils/provider/music/music_handler_admin.dart';
-import 'utils/provider/states/screen_state_tracker.dart';
+import 'utils/provider/music/audio_handler_admin.dart';
+import 'utils/states/screen_state_tracker.dart';
 
-void main() {
+late AudioHandler _audioHandler;
+void main() async {
+  _audioHandler = await AudioService.init(
+      builder: () => AudioPlayerHandler(),
+      config: const AudioServiceConfig(
+        androidNotificationChannelId: 'com.ryanheise.myapp.channel.audio',
+        androidNotificationChannelName: 'Audio playback',
+        androidNotificationOngoing: true,
+      ));
   runApp(const Tune());
 }
 
@@ -27,7 +36,8 @@ class Tune extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-            create: (BuildContext context) => MusicHandlerAdmin()),
+            create: (BuildContext context) =>
+                AudioHandlerAdmin(audioHandler: _audioHandler)),
         ChangeNotifierProvider(
             create: (BuildContext context) => ScreenStateTracker())
       ],

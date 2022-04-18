@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 
 import 'package:tune/utils/constants/system_constants.dart';
-import 'package:tune/utils/provider/music/music_handler_admin.dart';
+import 'package:tune/utils/provider/music/audio_handler_admin.dart';
 
 class CircularProgressMini extends StatefulWidget {
   final Duration _min;
@@ -45,7 +45,7 @@ class _CircularProgressMiniState extends State<CircularProgressMini> {
     return SleekCircularSlider(
       min: widget._min.inMilliseconds.toDouble(),
       max: widget._max.inMilliseconds.toDouble(),
-      initialValue: Provider.of<MusicHandlerAdmin>(context)
+      initialValue: Provider.of<AudioHandlerAdmin>(context)
           .getPosition
           .inMilliseconds
           .toDouble(),

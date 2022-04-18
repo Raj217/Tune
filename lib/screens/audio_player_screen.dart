@@ -7,7 +7,7 @@ import 'dart:math';
 import 'dart:async';
 
 import 'package:tune/utils/constants/system_constants.dart';
-import 'package:tune/utils/provider/music/music_handler_admin.dart';
+import 'package:tune/utils/provider/music/audio_handler_admin.dart';
 import 'package:tune/widgets/music/progress/music_progress_bar.dart';
 import 'package:tune/widgets/music/progress/music_progress_digital.dart';
 import 'package:tune/widgets/img/poster.dart';
@@ -103,7 +103,7 @@ class _AudioPlayerState extends State<AudioPlayer>
     return SafeArea(
       child: Scaffold(
         backgroundColor: kBackgroundColor,
-        body: Consumer<MusicHandlerAdmin>(
+        body: Consumer<AudioHandlerAdmin>(
           builder: (context, handler, _) {
             return SingleChildScrollView(
               child: Column(
@@ -189,17 +189,18 @@ class _AudioPlayerState extends State<AudioPlayer>
                                 }),
                             ExtendedButton(
                                 extendedRadius: 70,
-                                iconName: 'changeSong',
-                                iconHeight: 25,
-                                iconColor: kBaseColor,
-                                onTap: () {} // TODO: implement
-                                ),
+                                svgName: 'changeSong',
+                                svgHeight: 25,
+                                svgColor: kBaseColor,
+                                onTap: () {
+                                  handler.getAudioHandler.skipToPrevious();
+                                }),
                             ExtendedButton(
                                 extendedRadius: 80,
                                 extendedBGColor: kBaseColor,
-                                iconName: (playing ? 'pause' : 'play'),
-                                iconHeight: 25,
-                                iconColor: kBackgroundColor,
+                                svgName: (playing ? 'pause' : 'play'),
+                                svgHeight: 25,
+                                svgColor: kBackgroundColor,
                                 onTap: () {
                                   playing
                                       ? handler.getAudioHandler.pause()
@@ -208,23 +209,23 @@ class _AudioPlayerState extends State<AudioPlayer>
                             ExtendedButton(
                                 extendedRadius: 70,
                                 angle: pi,
-                                iconName: 'changeSong',
-                                iconHeight: 25,
-                                iconColor: kBaseColor,
+                                svgName: 'changeSong',
+                                svgHeight: 25,
+                                svgColor: kBaseColor,
                                 onTap: () {
                                   handler.getAudioHandler.skipToNext();
                                 } // TODO: Implement
                                 ),
                             ExtendedButton(
                                 extendedRadius: 55,
-                                iconName: (handler.getPlaylistMode ==
+                                svgName: (handler.getPlaylistMode ==
                                         PlayMode.repeatAll
                                     ? 'repeat'
                                     : handler.getPlaylistMode ==
                                             PlayMode.repeatThis
                                         ? 'repeat_this_song'
                                         : 'shuffle'),
-                                iconHeight: 16,
+                                svgHeight: 16,
                                 onTap: () {
                                   setState(() {
                                     handler.incrementPlaylistIndex();
@@ -235,8 +236,8 @@ class _AudioPlayerState extends State<AudioPlayer>
                       }),
                   SizedBox(height: screenSize.height * 0.08),
                   ExtendedButton(
-                      iconName: 'arrow',
-                      iconColor: kBaseColor,
+                      svgName: 'arrow',
+                      svgColor: kBaseColor,
                       onTap: () {
                         timer.cancel();
                         Navigator.pop(context);

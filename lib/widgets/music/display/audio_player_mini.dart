@@ -4,10 +4,10 @@ import 'package:lottie/lottie.dart';
 import 'dart:math';
 
 import 'package:tune/utils/constants/system_constants.dart';
-import 'package:tune/utils/provider/music/music_handler_admin.dart';
+import 'package:tune/utils/provider/music/audio_handler_admin.dart';
 import 'package:tune/widgets/animation/liquid_animation.dart';
 import 'package:tune/widgets/music/progress/circular_progress_mini.dart';
-import '../../screens/audio_player_screen.dart';
+import '../../../screens/audio_player_screen.dart';
 import 'package:tune/widgets/buttons/extended_button.dart';
 import 'package:tune/widgets/overflow_handlers/scrolling_text.dart';
 
@@ -56,7 +56,7 @@ class _AudioPlayerMiniState extends State<AudioPlayerMini>
     try {
       if (widget.visible == false) {
         widget.visible =
-            !(Provider.of<MusicHandlerAdmin>(context, listen: false)
+            !(Provider.of<AudioHandlerAdmin>(context, listen: false)
                     .getTotalDuration ==
                 kDurationNotInitialised);
       }
@@ -78,10 +78,10 @@ class _AudioPlayerMiniState extends State<AudioPlayerMini>
     return Stack(
       children: [
         const LiquidAnimation(),
-        Visibility(
-          visible: widget.visible,
-          child: Consumer<MusicHandlerAdmin>(builder: (context, handler, _) {
-            return StreamBuilder<bool>(
+        Consumer<AudioHandlerAdmin>(builder: (context, handler, _) {
+          return Visibility(
+            visible: handler.getNAudioValueNotifier.value > 0 ? true : false,
+            child: StreamBuilder<bool>(
                 stream: handler.getAudioHandler.playbackState
                     .map((state) => state.playing)
                     .distinct(),
@@ -109,11 +109,11 @@ class _AudioPlayerMiniState extends State<AudioPlayerMini>
                             })).then((value) =>
                                 setBottomNavBarColor(kBaseCounterColor));
                           },
-                          iconName: 'arrow',
+                          svgName: 'arrow',
                           angle: pi,
                           extendedRadius: 40,
-                          iconColor: kBackgroundColor,
-                          iconHeight: kDefaultIconHeight / 1.2,
+                          svgColor: kBackgroundColor,
+                          svgHeight: kDefaultIconHeight / 1.2,
                         ),
                         ScrollingText(
                           text: handler.getTitle == 'Untitled Song'
@@ -142,9 +142,9 @@ class _AudioPlayerMiniState extends State<AudioPlayerMini>
                             CircularProgressMini(max: handler.getTotalDuration),
                             ExtendedButton(
                               extendedRadius: 42,
-                              iconName: playing ? 'pause' : 'play',
-                              iconHeight: 18,
-                              iconColor: kBackgroundColor,
+                              svgName: playing ? 'pause' : 'play',
+                              svgHeight: 18,
+                              svgColor: kBackgroundColor,
                               onTap: playing
                                   ? () => handler.getAudioHandler.pause()
                                   : () => handler.getAudioHandler.play(),
@@ -154,9 +154,9 @@ class _AudioPlayerMiniState extends State<AudioPlayerMini>
                       ],
                     ),
                   );
-                });
-          }),
-        ),
+                }),
+          );
+        }),
       ],
     );
   }
