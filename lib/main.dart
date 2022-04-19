@@ -47,7 +47,8 @@ class Tune extends StatelessWidget {
         theme: ThemeData.dark(),
         initialRoute: SplashScreen.id,
         routes: {
-          AudioPlayer.id: (BuildContext context) => const AudioPlayer(),
+          AudioPlayerScreen.id: (BuildContext context) =>
+              const AudioPlayerScreen(),
           BottomNavigator.id: (BuildContext context) => const BottomNavigator(),
           HomeScreen.id: (BuildContext context) => const HomeScreen(),
           LocalAudioScreen.id: (BuildContext context) =>

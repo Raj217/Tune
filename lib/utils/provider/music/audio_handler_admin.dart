@@ -1,6 +1,7 @@
 /// The base file for handling all music related functions
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:typed_data';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/cupertino.dart';
@@ -36,15 +37,18 @@ enum PlayMode {
 
 final AudioPlayer _player = AudioPlayer();
 ID3Tag? _metaData;
-List<MediaItem> _audioData = <MediaItem>[];
-ValueNotifier<int> _currentlyPlayingAudioIndex = ValueNotifier(-1);
+Map<String, List<MediaItem>> _audioData = {
+  'all songs': <MediaItem>[],
+  'favorites': <MediaItem>[]
+};
+final ValueNotifier<int> _currentlyPlayingAudioIndex = ValueNotifier(-1);
 bool _isUpdating = false;
 
 class AudioHandlerAdmin extends ChangeNotifier {
   final AudioHandler _audioHandler;
   final ConcatenatingAudioSource _playlist =
       ConcatenatingAudioSource(children: []);
-  final ValueNotifier<int> _nAudioValueNotifier = ValueNotifier(0);
+  int _nAudioValueNotifier = 0;
 
   /// How do you want to repeat the song/playlist (allowed modes)
   final List<PlayMode> playlistAllowedModes = [
@@ -60,6 +64,7 @@ class AudioHandlerAdmin extends ChangeNotifier {
       : _audioHandler = audioHandler {
     _listenToPlaybackState();
     _player.setAudioSource(_playlist);
+    readPlaylist(playlistName: 'all songs');
   }
 
   void incrementPlaylistIndex() {
@@ -78,15 +83,49 @@ class AudioHandlerAdmin extends ChangeNotifier {
     });
   }
 
-  Future<void> addAudio({required String path, String? tag}) async {
+  Future<void> addAudio(
+      {required String path,
+      String? tag,
+      String playlistName = 'all songs'}) async {
     await _playlist.add(AudioSource.uri(Uri.file(path), tag: tag ?? path));
-    _audioData.add(await AudioPlayerHandler.getMediaData(path));
-    _nAudioValueNotifier.value += 1;
+    _audioData[playlistName]?.add(await AudioPlayerHandler.getMediaData(path));
+    _nAudioValueNotifier += 1;
+    savePlaylist(
+        playlistLinks: _audioData[playlistName]!
+            .map<String>((mediaItem) => mediaItem.extras!['path'])
+            .toList(),
+        playlistName: '$playlistName.json');
+    notifyListeners();
     if (_audioHandler.mediaItem.value?.title == null) {
       _currentlyPlayingAudioIndex.value = 0;
-      await _audioHandler.updateMediaItem(_audioData[_player.currentIndex!]);
+      await _audioHandler
+          .updateMediaItem(_audioData[playlistName]![_player.currentIndex!]);
+      notifyListeners();
     }
     return;
+  }
+
+  Future<void> savePlaylist(
+      {required List<String> playlistLinks,
+      required String playlistName}) async {
+    await FileHandler.save(
+        fileName: playlistName, fileContents: json.encode(playlistLinks));
+  }
+
+  Future<List<String>?> readPlaylist({required String playlistName}) async {
+    if (_audioData.keys.toList().contains(playlistName)) {
+      String? data = await FileHandler.read(fileName: playlistName + '.json');
+      if (data != null) {
+        List<dynamic> decodedData = json.decode(data);
+        decodedData = decodedData.reversed.toList();
+        for (String link in decodedData) {
+          print(link);
+          addAudio(path: link);
+        }
+      }
+    }
+
+    return null;
   }
 
   // ------------------------------ Getter Methods ------------------------------
@@ -107,20 +146,31 @@ class AudioHandlerAdmin extends ChangeNotifier {
   Duration get getTotalDuration => _player.duration ?? kDurationNotInitialised;
   Duration get getPosition => _player.position;
   bool get getIsPlaying => _player.playing;
-  List<MediaItem> get getAudioData => _audioData;
-  ValueNotifier<int> get getNAudioValueNotifier => _nAudioValueNotifier;
-  ValueNotifier<int> get getCurrentlyPlayingAudioIndex =>
-      _currentlyPlayingAudioIndex;
+  List<MediaItem> get getAudioData => _audioData['all songs']!;
+  int get getNAudioValueNotifier => _nAudioValueNotifier;
+  int get getCurrentlyPlayingAudioIndex => _player.currentIndex ?? -1;
   bool get getIsUpdating => _isUpdating;
   Future<void> updateMediaItem() async {
     if (_audioHandler.mediaItem !=
         _audioData[_currentlyPlayingAudioIndex.value]) {
       await _audioHandler
-          .updateMediaItem(_audioData[_player.currentIndex!])
+          .updateMediaItem(_audioData['all songs']![_player.currentIndex!])
           .then((value) {
         notifyListeners();
       });
     }
+  }
+
+  void updateCurrentlyPlayingAudioIndex() {
+    _currentlyPlayingAudioIndex.value = _player.currentIndex ?? -1;
+  }
+
+  void setSpeed(double speed) {
+    _player.setSpeed(speed);
+  }
+
+  void setPitch(double pitch) {
+    _player.setPitch(pitch);
   }
 
   @override
@@ -182,8 +232,8 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
 
   @override
   Future<void> play() async {
-    _player.play();
     _currentlyPlayingAudioIndex.value = _player.currentIndex ?? -1;
+    _player.play();
   }
 
   @override
@@ -200,7 +250,7 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
     if (_player.hasPrevious && !_isUpdating) {
       _isUpdating = true;
       _player.seekToPrevious();
-      await updateMediaItem(_audioData[_player.currentIndex!])
+      await updateMediaItem(_audioData['all songs']![_player.currentIndex!])
           .then((value) => _isUpdating = false);
       _currentlyPlayingAudioIndex.value = _player.currentIndex ?? -1;
     }
@@ -211,7 +261,7 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
     if (_player.hasNext && !_isUpdating) {
       _isUpdating = true;
       _player.seekToNext();
-      await updateMediaItem(_audioData[_player.currentIndex!])
+      await updateMediaItem(_audioData['all songs']![_player.currentIndex!])
           .then((value) => _isUpdating = false);
       _currentlyPlayingAudioIndex.value = _player.currentIndex ?? -1;
     }
@@ -220,10 +270,13 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
   @override
   Future<void> skipToQueueItem(int index) async {
     if (!_isUpdating) {
+      _currentlyPlayingAudioIndex.value = index;
       _isUpdating = true;
       _player.seek(Duration.zero, index: index);
-      await updateMediaItem(_audioData[index])
-          .then((value) => _isUpdating = false);
+      await updateMediaItem(_audioData['all songs']![index]).then((value) {
+        _isUpdating = false;
+        play();
+      });
     }
   }
 

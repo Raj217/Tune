@@ -5,7 +5,7 @@ import 'package:tune/utils/constants/system_constants.dart';
 
 class ExtendedButton extends StatelessWidget {
   /// Radius of the circle so that this widget responds to onTap
-  final double extendedRadius;
+  double extendedRadius;
 
   /// Color of the BG, by default [Colors.transparent]
   final Color extendedBGColor;
@@ -13,7 +13,10 @@ class ExtendedButton extends StatelessWidget {
   /// Svg file name of the icon (don't include .svg)
   final String? svgName;
 
-  final double svgHeight;
+  double? svgHeight;
+  double? svgWidth;
+
+  final String? svgPath;
 
   final Color svgColor;
 
@@ -29,17 +32,30 @@ class ExtendedButton extends StatelessWidget {
   /// Creates a button with extended area so that it will be easier for the
   /// user to tap and use that button
 
-  const ExtendedButton(
+  ExtendedButton(
       {Key? key,
       this.extendedRadius = kDefaultExtendedButtonRadius,
       this.extendedBGColor = Colors.transparent,
       this.svgName,
-      this.svgHeight = kDefaultIconHeight,
+      this.svgPath,
+      this.svgHeight,
+      this.svgWidth,
       this.svgColor = kIconsColor,
       this.angle = 0,
       this.child,
       this.onTap})
-      : super(key: key);
+      : assert(svgName != null || svgPath != null || child != null,
+            'either of svgName/Path/child must be provided'),
+        super(key: key) {
+    if (svgHeight == null && svgWidth == null) {
+      svgHeight = kDefaultIconHeight;
+    }
+    if (svgHeight != null && extendedRadius < svgHeight!) {
+      extendedRadius = svgHeight! + 10;
+    } else if (svgWidth != null && extendedRadius < svgWidth!) {
+      extendedRadius = svgWidth! + 10;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,9 +73,10 @@ class ExtendedButton extends StatelessWidget {
               ),
               child ??
                   SvgPicture.asset(
-                    '$kDefaultIconsPath/$svgName.svg',
+                    svgPath ?? '$kDefaultIconsPath/$svgName.svg',
                     height: svgHeight,
-                    color: svgColor,
+                    width: svgWidth,
+                    color: svgPath == null ? svgColor : null,
                   ),
             ],
           ),

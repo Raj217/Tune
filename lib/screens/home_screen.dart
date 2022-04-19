@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:tune/utils/constants/system_constants.dart';
+import 'package:tune/utils/states/screen_state_tracker.dart';
+import 'package:tune/widgets/app_bar.dart';
 import 'package:tune/widgets/overflow_handlers/vertical_scroll.dart';
 
 import '../utils/provider/music/audio_handler_admin.dart';
@@ -18,20 +20,15 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   @override
-  void initState() {
-    super.initState();
-
-    lockPortraitMode();
-    setBottomNavBarColor(kBaseCounterColor);
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: kBackgroundColor,
-      body: VerticalScroll(
-        screenSize: MediaQuery.of(context).size,
-        child: Container(),
+    return VerticalScroll(
+      screenSize: MediaQuery.of(context).size,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          CustomAppBar(),
+          Provider.of<ScreenStateTracker>(context).getAudioPlayerMini
+        ],
       ),
     );
   }

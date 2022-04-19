@@ -22,6 +22,18 @@ class FileHandler {
     return file?.paths[0];
   }
 
+  static Future<String?> read({required String fileName}) async {
+    Directory directory = await getApplicationDocumentsDirectory();
+    String applicationDocumentPath = directory.path;
+    String filePath = '$applicationDocumentPath/$fileName';
+
+    File file = File(filePath);
+    if (await file.exists()) {
+      return file.readAsString();
+    }
+    return null;
+  }
+
   static Future<String> save(
       {List<int>? fileBytes,
       String? fileContents,

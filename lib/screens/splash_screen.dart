@@ -28,7 +28,9 @@ class _SplashScreenState extends State<SplashScreen> {
     setBottomNavBarColor(kBackgroundColor);
 
     Future.delayed(kDurationSplashScreenTime).then((_) {
-      Navigator.pushNamed(context, BottomNavigator.id);
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return CustomDrawer();
+      }));
     }); // Delay to show the splash screen
   }
 

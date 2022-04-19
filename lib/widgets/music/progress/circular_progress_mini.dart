@@ -29,8 +29,14 @@ class _CircularProgressMiniState extends State<CircularProgressMini> {
   @override
   void initState() {
     super.initState();
-    timer = Timer.periodic(kDurationOneSecond, (timer) {
-      setState(() {});
+
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+      timer = Timer.periodic(kDurationOneSecond, (timer) {
+        if (Provider.of<AudioHandlerAdmin>(context, listen: false)
+            .getIsPlaying) {
+          setState(() {});
+        }
+      });
     });
   }
 

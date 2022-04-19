@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lottie/lottie.dart';
@@ -5,6 +7,7 @@ import 'dart:math';
 
 import 'package:tune/utils/constants/system_constants.dart';
 import 'package:tune/utils/provider/music/audio_handler_admin.dart';
+import 'package:tune/utils/states/screen_state_tracker.dart';
 import 'package:tune/widgets/animation/liquid_animation.dart';
 import 'package:tune/widgets/music/progress/circular_progress_mini.dart';
 import '../../../screens/audio_player_screen.dart';
@@ -80,7 +83,7 @@ class _AudioPlayerMiniState extends State<AudioPlayerMini>
         const LiquidAnimation(),
         Consumer<AudioHandlerAdmin>(builder: (context, handler, _) {
           return Visibility(
-            visible: handler.getNAudioValueNotifier.value > 0 ? true : false,
+            visible: handler.getNAudioValueNotifier > 0 ? true : false,
             child: StreamBuilder<bool>(
                 stream: handler.getAudioHandler.playbackState
                     .map((state) => state.playing)
@@ -93,21 +96,30 @@ class _AudioPlayerMiniState extends State<AudioPlayerMini>
                     _lottieController.stop();
                   }
                   return Padding(
-                    padding: EdgeInsets.only(
-                        top: widget.baseHeight, bottom: widget.baseHeight / 10),
+                    padding: const EdgeInsets.only(
+                        top: kDefaultMiniAudioBaseHeight / 3),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         ExtendedButton(
                           onTap: () {
+                            handler.readPlaylist(
+                                playlistName: 'all songs.json');
                             Navigator.push(context, MaterialPageRoute(
                                 builder: (BuildContext context) {
-                              return AudioPlayer(
+                              Provider.of<ScreenStateTracker>(context,
+                                      listen: false)
+                                  .setShouldShowAudioPlayerMini = false;
+                              return AudioPlayerScreen(
                                 totalDuration: handler.getTotalDuration,
                                 position: handler.getPosition,
                               );
-                            })).then((value) =>
-                                setBottomNavBarColor(kBaseCounterColor));
+                            })).then((value) {
+                              Provider.of<ScreenStateTracker>(context,
+                                      listen: false)
+                                  .setShouldShowAudioPlayerMini = true;
+                              setBottomNavBarColor(kBaseCounterColor);
+                            });
                           },
                           svgName: 'arrow',
                           angle: pi,

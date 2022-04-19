@@ -6,7 +6,8 @@ class LiquidAnimation extends StatelessWidget {
   /// Height of base
   final double height;
 
-  const LiquidAnimation({Key? key, this.height = 200}) : super(key: key);
+  const LiquidAnimation({Key? key, this.height = kDefaultMiniAudioBaseHeight})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +34,7 @@ class Base extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     Paint paint = Paint();
     paint.color = kBaseColor;
-    canvas.drawRect(Rect.fromLTWH(0, height / 10, width, height), paint);
+    canvas.drawRect(Rect.fromLTWH(0, height / 4, width, height), paint);
   }
 
   @override

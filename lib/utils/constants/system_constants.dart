@@ -70,6 +70,7 @@ const kDefaultSongName = 'Untitled Song';
 const String kDefaultIconsPath = 'assets/icons';
 const String kDefaultPosterImgPath = 'assets/essentials/default_poster_img.png';
 const String kDefaultLottieAnimationsPath = 'assets/animations';
+const String kDefaultAvatarsPath = 'assets/avatars/';
 
 // ---------------------------- Size ----------------------------
 const double kPosterImgHeight = 300;
@@ -79,7 +80,7 @@ const double kPosterImgSpread = 10;
 const double kSplashScreenLogoSize = 150;
 const double kDefaultLogoSize = 40;
 
-const double kDefaultMiniAudioBaseHeight = 30;
+const double kDefaultMiniAudioBaseHeight = 100;
 
 const double kDefaultIconHeight = 15;
 const double kDefaultIconWidth = 18;

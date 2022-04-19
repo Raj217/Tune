@@ -13,9 +13,10 @@ import 'package:tune/widgets/music/progress/music_progress_digital.dart';
 import 'package:tune/widgets/img/poster.dart';
 import 'package:tune/widgets/buttons/extended_button.dart';
 import 'package:tune/widgets/overflow_handlers/scrolling_text.dart';
+import 'package:tune/widgets/scroller/value_scroller.dart';
 
-class AudioPlayer extends StatefulWidget {
-  const AudioPlayer(
+class AudioPlayerScreen extends StatefulWidget {
+  const AudioPlayerScreen(
       {Key? key,
       this.totalDuration = kDurationNotInitialised,
       this.position = Duration.zero})
@@ -25,10 +26,10 @@ class AudioPlayer extends StatefulWidget {
   final Duration position;
 
   @override
-  State<AudioPlayer> createState() => _AudioPlayerState();
+  State<AudioPlayerScreen> createState() => _AudioPlayerScreenState();
 }
 
-class _AudioPlayerState extends State<AudioPlayer>
+class _AudioPlayerScreenState extends State<AudioPlayerScreen>
     with TickerProviderStateMixin {
   /// Total Duration of the audio
   late Duration totalDuration;

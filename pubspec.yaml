@@ -25,8 +25,7 @@ dependencies:
   file_picker: ^4.5.1
   lottie: ^1.2.2
   liquid_swipe: ^2.1.1
-  # Might be useful in future
-  # intl: ^0.17.0
+  flutter_zoom_drawer: ^3.0.1
 
 
 dev_dependencies:
@@ -47,6 +46,7 @@ flutter:
     - assets/essentials/
     - assets/icons/
     - assets/animations/
+    - assets/avatars/
 
   fonts:
     - family: Comfortaa

@@ -4,12 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:tune/utils/provider/music/audio_handler_admin.dart';
+import 'package:tune/utils/states/screen_state_tracker.dart';
+import 'package:tune/widgets/app_bar.dart';
+import 'package:tune/widgets/buttons/extended_button.dart';
+import 'package:tune/screens/menu_screen.dart';
 import 'package:tune/widgets/music/display/audio_player_mini.dart';
 import 'package:tune/widgets/overflow_handlers/vertical_scroll.dart';
 import 'package:tune/utils/constants/system_constants.dart';
 import 'package:tune/utils/formatter.dart';
 import 'package:tune/utils/storage/file_handler.dart';
 import 'package:tune/widgets/buttons/icon_button.dart';
+
+import '../widgets/scroller/value_scroller.dart';
 
 class LocalAudioScreen extends StatefulWidget {
   const LocalAudioScreen({Key? key}) : super(key: key);
@@ -20,15 +26,6 @@ class LocalAudioScreen extends StatefulWidget {
 }
 
 class _LocalAudioScreenState extends State<LocalAudioScreen> {
-  AudioPlayerMini _audioPlayerMini = AudioPlayerMini();
-  @override
-  void initState() {
-    super.initState();
-
-    lockPortraitMode();
-    setBottomNavBarColor(kBaseCounterColor);
-  }
-
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
@@ -38,22 +35,7 @@ class _LocalAudioScreenState extends State<LocalAudioScreen> {
         return Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const CustomIconButton(iconName: 'menu'),
-                  Row(
-                    children: const [
-                      CustomIconButton(iconName: 'search'),
-                      SizedBox(width: 15),
-                      CustomIconButton(iconName: 'appOptions')
-                    ],
-                  )
-                ],
-              ),
-            ),
+            CustomAppBar(),
             Column(
               children: [
                 Padding(
@@ -69,7 +51,9 @@ class _LocalAudioScreenState extends State<LocalAudioScreen> {
                           await handler
                               .addAudio(path: filePath)
                               .then((value) => setState(() {
-                                    _audioPlayerMini = AudioPlayerMini(
+                                    Provider.of<ScreenStateTracker>(context,
+                                            listen: false)
+                                        .setAudioPlayerMini = AudioPlayerMini(
                                       songName: songName,
                                       visible: true,
                                     );
@@ -94,9 +78,9 @@ class _LocalAudioScreenState extends State<LocalAudioScreen> {
                     ),
                   ),
                 ),
-                _audioPlayerMini
+                Provider.of<ScreenStateTracker>(context).getAudioPlayerMini,
               ],
-            )
+            ),
           ],
         );
       }),
