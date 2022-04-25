@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
+import 'package:tune/screens/audio_related/song_options.dart';
 import 'dart:math';
 import 'dart:async';
 
@@ -12,8 +13,8 @@ import 'package:tune/widgets/music/progress/music_progress_bar.dart';
 import 'package:tune/widgets/music/progress/music_progress_digital.dart';
 import 'package:tune/widgets/img/poster.dart';
 import 'package:tune/widgets/buttons/extended_button.dart';
-import 'package:tune/widgets/overflow_handlers/scrolling_text.dart';
-import 'package:tune/widgets/scroller/value_scroller.dart';
+import 'package:tune/widgets/scroller/scrolling_text.dart';
+import 'package:tune/widgets/scroller/value_picker.dart';
 
 class AudioPlayerScreen extends StatefulWidget {
   const AudioPlayerScreen(
@@ -31,10 +32,10 @@ class AudioPlayerScreen extends StatefulWidget {
 
 class _AudioPlayerScreenState extends State<AudioPlayerScreen>
     with TickerProviderStateMixin {
-  /// Total Duration of the audio
+  /// Total Duration of the audio_related
   late Duration totalDuration;
 
-  /// Current position of the audio
+  /// Current position of the audio_related
   late Duration position;
 
   /// To redraw the screen every second (implemented in initState)
@@ -42,13 +43,13 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
 
   late Size screenSize;
 
-  /// Allowed width for audio title beyond which text will start scrolling
+  /// Allowed width for audio_related title beyond which text will start scrolling
   late double audioTitleWidth;
 
-  /// Allowed width for audio artist beyond which text will start scrolling
+  /// Allowed width for audio_related artist beyond which text will start scrolling
   late double audioArtistWidth;
 
-  /// To add this audio in the favorite category
+  /// To add this audio_related in the favorite category
   bool favorite = false;
 
   /// Control the lottie animation of favoring and unfavored
@@ -78,9 +79,13 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
       });
 
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      timer = Timer.periodic(kDurationOneSecond, (timer) {
-        setState(() {}); // Update the screen every second
-      });
+      startTimer();
+    });
+  }
+
+  void startTimer() {
+    timer = Timer.periodic(kDurationOneSecond, (timer) {
+      setState(() {}); // Update the screen every second
     });
   }
 
@@ -99,6 +104,12 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
   }
 
   @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     initSizes();
     return SafeArea(
@@ -112,16 +123,39 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Stack(
-                    alignment: Alignment.center,
+                    alignment: Alignment.topRight,
                     children: [
-                      Padding(
-                        padding:
-                            EdgeInsets.only(bottom: screenSize.height / 15),
-                        child: const Poster(),
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Padding(
+                            padding:
+                                EdgeInsets.only(bottom: screenSize.height / 15),
+                            child: const Poster(),
+                          ),
+                          MusicProgressBar(
+                            max: totalDuration,
+                          ),
+                        ],
                       ),
-                      MusicProgressBar(
-                        max: totalDuration,
-                      ),
+                      ExtendedButton(
+                        svgName: 'appOptions',
+                        svgWidth: kDefaultIconWidth,
+                        onTap: () {
+                          showModalBottomSheet(
+                                  backgroundColor: Colors.transparent,
+                                  context: context,
+                                  builder: (context) {
+                                    setBottomNavBarColor(kSongOptionsBGColor);
+                                    return SongOptions(
+                                      mediaItem: handler
+                                          .getAudioHandler.mediaItem.value,
+                                    );
+                                  })
+                              .then((value) =>
+                                  setBottomNavBarColor(kBackgroundColor));
+                        },
+                      )
                     ],
                   ),
                   Row(
@@ -153,7 +187,8 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
                             width: audioTitleWidth,
                             style: kAudioTitleTextStyle),
                         ScrollingText(
-                            text: handler.getMetaData?.artist,
+                            text:
+                                handler.getAudioHandler.mediaItem.value?.artist,
                             width: audioArtistWidth,
                             style: kAudioArtistTextStyle),
                       ]),
@@ -194,7 +229,9 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
                                 svgHeight: 25,
                                 svgColor: kBaseColor,
                                 onTap: () {
-                                  handler.getAudioHandler.skipToPrevious();
+                                  setState(() {
+                                    handler.getAudioHandler.skipToPrevious();
+                                  });
                                 }),
                             ExtendedButton(
                                 extendedRadius: 80,
@@ -214,9 +251,10 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
                                 svgHeight: 25,
                                 svgColor: kBaseColor,
                                 onTap: () {
-                                  handler.getAudioHandler.skipToNext();
-                                } // TODO: Implement
-                                ),
+                                  setState(() {
+                                    handler.getAudioHandler.skipToNext();
+                                  });
+                                }),
                             ExtendedButton(
                                 extendedRadius: 55,
                                 svgName: (handler.getPlaylistMode ==

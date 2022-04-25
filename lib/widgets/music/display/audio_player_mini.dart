@@ -10,12 +10,12 @@ import 'package:tune/utils/provider/music/audio_handler_admin.dart';
 import 'package:tune/utils/states/screen_state_tracker.dart';
 import 'package:tune/widgets/animation/liquid_animation.dart';
 import 'package:tune/widgets/music/progress/circular_progress_mini.dart';
-import '../../../screens/audio_player_screen.dart';
+import '../../../screens/audio_related/audio_player_screen.dart';
 import 'package:tune/widgets/buttons/extended_button.dart';
-import 'package:tune/widgets/overflow_handlers/scrolling_text.dart';
+import 'package:tune/widgets/scroller/scrolling_text.dart';
 
 class AudioPlayerMini extends StatefulWidget {
-  /// Base Height is for the empty space for the audio name and some basic functions and animation
+  /// Base Height is for the empty space for the audio_related name and some basic functions and animation
   double baseHeight;
 
   /// Should the data be shown??
@@ -46,7 +46,7 @@ class AudioPlayerMini extends StatefulWidget {
 
 class _AudioPlayerMiniState extends State<AudioPlayerMini>
     with TickerProviderStateMixin {
-  /// Mini audio visualizer animation controller
+  /// Mini audio_related visualizer animation controller
   late AnimationController _lottieController;
 
   /// Width of the text which scrolls automatically
@@ -97,7 +97,7 @@ class _AudioPlayerMiniState extends State<AudioPlayerMini>
                   }
                   return Padding(
                     padding: const EdgeInsets.only(
-                        top: kDefaultMiniAudioBaseHeight / 3),
+                        top: kDefaultMiniAudioBaseHeight / 3.5),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
@@ -151,7 +151,10 @@ class _AudioPlayerMiniState extends State<AudioPlayerMini>
                         Stack(
                           alignment: Alignment.center,
                           children: [
-                            CircularProgressMini(max: handler.getTotalDuration),
+                            IntrinsicHeight(
+                              child: CircularProgressMini(
+                                  max: handler.getTotalDuration),
+                            ),
                             ExtendedButton(
                               extendedRadius: 42,
                               svgName: playing ? 'pause' : 'play',

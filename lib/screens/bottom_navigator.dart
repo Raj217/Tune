@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 
 import 'package:tune/utils/constants/system_constants.dart';
 import 'package:tune/utils/states/screen_state_tracker.dart';
-import 'package:tune/screens/menu_screen.dart';
+import 'package:tune/screens/main%20screens/menu_screen.dart';
 import 'package:tune/widgets/music/display/audio_player_mini.dart';
 
 import '../widgets/buttons/icon_button.dart';
@@ -49,7 +49,7 @@ class _BottomNavigatorState extends State<BottomNavigator> {
               backgroundColor: kBackgroundColor,
               bottomNavigationBar: CurvedNavigationBar(
                 index: tracker.getIndex,
-                backgroundColor: Colors.transparent,
+                backgroundColor: kBaseColor,
                 height: screenSize.height * 0.068,
                 animationDuration: const Duration(milliseconds: 300),
                 color: kBaseCounterColor,

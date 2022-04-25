@@ -10,15 +10,19 @@ import 'package:tune/utils/constants/system_constants.dart';
 class VerticalScroll extends StatelessWidget {
   final Widget child;
   final Size screenSize;
+  final Color backgroundColor;
 
   const VerticalScroll(
-      {Key? key, required this.child, required this.screenSize})
+      {Key? key,
+      required this.child,
+      required this.screenSize,
+      this.backgroundColor = kBackgroundColor})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kBackgroundColor,
+      backgroundColor: backgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           child: ConstrainedBox(

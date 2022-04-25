@@ -1,4 +1,4 @@
-/// A mini progress bar to show the progress of the audio
+/// A mini progress bar to show the progress of the audio_related
 
 import 'dart:async';
 import 'package:flutter/material.dart';

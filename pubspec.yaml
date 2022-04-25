@@ -26,6 +26,7 @@ dependencies:
   lottie: ^1.2.2
   liquid_swipe: ^2.1.1
   flutter_zoom_drawer: ^3.0.1
+  share_plus: ^4.0.4
 
 
 dev_dependencies:
@@ -51,16 +52,35 @@ flutter:
   fonts:
     - family: Comfortaa
       fonts:
+        - asset: assets/fonts/Comfortaa/Comfortaa-Light.otf
+          weight: 300
         - asset: assets/fonts/Comfortaa/Comfortaa-Regular.ttf
           weight: 400
-        - asset: assets/fonts/Comfortaa/Comfortaa-Light.ttf
-          weight: 300
-        - asset: assets/fonts/Comfortaa/Comfortaa-Medium.ttf
+        - asset: assets/fonts/Comfortaa/Comfortaa-Medium.otf
           weight: 500
-        - asset: assets/fonts/Comfortaa/Comfortaa-SemiBold.ttf
+        - asset: assets/fonts/Comfortaa/Comfortaa-SemiBold.otf
           weight: 600
-        - asset: assets/fonts/Comfortaa/Comfortaa-Bold.ttf
+        - asset: assets/fonts/Comfortaa/Comfortaa-Bold.otf
           weight: 700
+    - family: Dosis
+      fonts:
+        - asset: assets/fonts/Dosis/Dosis-ExtraLight.otf
+          weight: 200
+        - asset: assets/fonts/Dosis/Dosis-Light.otf
+          weight: 300
+        - asset: assets/fonts/Dosis/Dosis-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Dosis/Dosis-Medium.otf
+          weight: 500
+        - asset: assets/fonts/Dosis/Dosis-SemiBold.otf
+          weight: 600
+        - asset: assets/fonts/Dosis/Dosis-Bold.otf
+          weight: 700
+        - asset: assets/fonts/Dosis/Dosis-ExtraBold.otf
+          weight: 800
+    - family: A Antara
+      fonts:
+        - asset: assets/fonts/A Antara/AAntaraDistance.otf
 
     - family: Logo
       fonts:

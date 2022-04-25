@@ -2,9 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_zoom_drawer/config.dart';
-import 'package:tune/screens/home_screen.dart';
-import 'package:tune/screens/local_audio_screen.dart';
-import 'package:tune/screens/playlist_screen.dart';
+import 'package:tune/screens/main%20screens/home_screen.dart';
+import 'package:tune/screens/main%20screens/local_audio_screen.dart';
+import 'package:tune/screens/main%20screens/playlist_screen.dart';
 import 'package:tune/utils/constants/system_constants.dart';
 import 'package:tune/utils/provider/music/audio_handler_admin.dart';
 import 'dart:math';
@@ -46,12 +46,6 @@ class ScreenStateTracker extends ChangeNotifier {
   void toggleMenu() {
     _zoomDrawerController.toggle?.call();
     menuShowing = !menuShowing;
-    if (menuShowing == true) {
-      setBottomNavBarColor(kBackgroundColor);
-    } else {
-      // Go back to main screen
-      setBottomNavBarColor(kBaseCounterColor);
-    }
     notifyListeners();
   }
 

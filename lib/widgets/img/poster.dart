@@ -41,19 +41,17 @@ class _PosterState extends State<Poster> {
   @override
   Widget build(BuildContext context) {
     Widget posterImg;
-    try {
+    List<int> imgData = Provider.of<AudioHandlerAdmin>(context).getThumbnail;
+    if (imgData.isNotEmpty) {
       posterImg = Image(
         image: CacheImageProvider(
-          '',
-          Uint8List.fromList(Provider.of<AudioHandlerAdmin>(context)
-              .getMetaData!
-              .pictures[0]
-              .imageData),
+          imgData.toString(),
+          Uint8List.fromList(imgData),
         ),
         height: widget._height,
         fit: BoxFit.cover,
       );
-    } catch (e) {
+    } else {
       posterImg = Image.asset(
         kDefaultPosterImgPath,
         height: widget._height,
@@ -66,22 +64,10 @@ class _PosterState extends State<Poster> {
         Center(
           child: CustomPaint(
             painter: PosterShadow(
-              height: widget._height - widget._spread / 2 - 1,
-              width: widget._width - widget._spread / 2 - 1,
-              spread: widget._spread + 2,
-              color: kPosterShadowColor1,
-              offset: Offset(-widget._spread - 2, 0),
-            ),
-          ),
-        ),
-        Center(
-          child: CustomPaint(
-            painter: PosterShadow(
-              height: widget._height - 4,
-              width: widget._width - 4,
-              spread: widget._spread + 2,
-              color: kPosterShadowColor2,
-              offset: Offset(widget._spread + 2, 0),
+              height: widget._height,
+              width: widget._width + widget._spread * 2,
+              spread: widget._spread,
+              color: kPosterShadowColor,
             ),
           ),
         ),

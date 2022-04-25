@@ -32,11 +32,11 @@ class _MusicProgressBarState extends State<MusicProgressBar>
   void initState() {
     super.initState();
 
-    _opacityController = AnimationController(
-        vsync: this, duration: kDurationProgressBarOnChangeOpacity)
-      ..addListener(() {
-        setState(() {});
-      });
+    _opacityController =
+        AnimationController(vsync: this, duration: kToastDuration)
+          ..addListener(() {
+            setState(() {});
+          });
   }
 
   @override
@@ -64,15 +64,15 @@ class _MusicProgressBarState extends State<MusicProgressBar>
               opacity: _opacityController.value,
               child: Container(
                 decoration: const BoxDecoration(
-                    color: kProgressOnChangeTextBGColor,
+                    color: kToastBgColor,
                     borderRadius: BorderRadius.all(Radius.circular(10))),
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
                     Formatter.durationFormatted(
                         Duration(milliseconds: val.toInt())),
-                    style: kAudioArtistTextStyle.copyWith(
-                        color: kProgressOnChangeTextColor),
+                    style:
+                        kAudioArtistTextStyle.copyWith(color: kToastTextColor),
                   ),
                 ),
               ),

@@ -1,13 +1,15 @@
 /// Loading Screen to initialize all the essentials
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_glow/flutter_glow.dart';
 import 'dart:async';
 
 import 'package:tune/widgets/others/tune_logo.dart';
 import 'package:tune/utils/constants/system_constants.dart';
-import 'package:tune/widgets/overflow_handlers/vertical_scroll.dart';
-import 'bottom_navigator.dart';
+import 'package:tune/widgets/scroller/vertical_scroll.dart';
+import '../bottom_navigator.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -30,7 +32,7 @@ class _SplashScreenState extends State<SplashScreen> {
     Future.delayed(kDurationSplashScreenTime).then((_) {
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return CustomDrawer();
-      }));
+      })).then((value) => exit(0));
     }); // Delay to show the splash screen
   }
 

@@ -19,7 +19,7 @@ class MusicProgressBarDigital extends StatelessWidget {
       Text(
         Formatter.durationFormatted(position),
         style: kAudioArtistTextStyle.copyWith(
-            color: kActiveColor, fontWeight: FontWeight.w500),
+            color: kActiveColor, fontWeight: FontWeight.w400),
       ),
       Text(
         ' - ${Formatter.durationFormatted(totalDuration)}',

@@ -1,4 +1,4 @@
-/// Locally stored audio files tracking here
+/// Locally stored audio_related files tracking here
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -6,16 +6,11 @@ import 'package:provider/provider.dart';
 import 'package:tune/utils/provider/music/audio_handler_admin.dart';
 import 'package:tune/utils/states/screen_state_tracker.dart';
 import 'package:tune/widgets/app_bar.dart';
-import 'package:tune/widgets/buttons/extended_button.dart';
-import 'package:tune/screens/menu_screen.dart';
 import 'package:tune/widgets/music/display/audio_player_mini.dart';
-import 'package:tune/widgets/overflow_handlers/vertical_scroll.dart';
+import 'package:tune/widgets/scroller/vertical_scroll.dart';
 import 'package:tune/utils/constants/system_constants.dart';
 import 'package:tune/utils/formatter.dart';
 import 'package:tune/utils/storage/file_handler.dart';
-import 'package:tune/widgets/buttons/icon_button.dart';
-
-import '../widgets/scroller/value_scroller.dart';
 
 class LocalAudioScreen extends StatefulWidget {
   const LocalAudioScreen({Key? key}) : super(key: key);
@@ -43,21 +38,26 @@ class _LocalAudioScreenState extends State<LocalAudioScreen> {
                       left: screenSize.width - screenSize.height * 0.07 - 5),
                   child: GestureDetector(
                     onTap: () async {
-                      await FileHandler.pick().then((String? filePath) async {
+                      FileHandler.pick().then((filePaths) async {
                         String? songName;
-                        if (filePath != null) {
-                          songName =
-                              Formatter.extractSongNameFromPath(filePath);
-                          await handler
-                              .addAudio(path: filePath)
-                              .then((value) => setState(() {
-                                    Provider.of<ScreenStateTracker>(context,
-                                            listen: false)
-                                        .setAudioPlayerMini = AudioPlayerMini(
-                                      songName: songName,
-                                      visible: true,
-                                    );
-                                  }));
+                        if (filePaths != null) {
+                          for (String? path in filePaths) {
+                            if (path != null) {
+                              songName =
+                                  Formatter.extractSongNameFromPath(path);
+                              handler
+                                  .addAudio(path: path)
+                                  .then((value) => setState(() {
+                                        Provider.of<ScreenStateTracker>(context,
+                                                    listen: false)
+                                                .setAudioPlayerMini =
+                                            AudioPlayerMini(
+                                          songName: songName,
+                                          visible: true,
+                                        );
+                                      }));
+                            }
+                          }
                         }
                       });
                     },

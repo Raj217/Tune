@@ -5,18 +5,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:tune/utils/constants/system_constants.dart';
 import 'package:tune/utils/provider/music/audio_handler_admin.dart';
 import 'package:tune/utils/states/screen_state_tracker.dart';
 import 'package:tune/widgets/app_bar.dart';
-import 'package:tune/widgets/buttons/extended_button.dart';
-import 'package:tune/widgets/buttons/extended_button.dart';
 import 'package:tune/widgets/img/poster.dart';
-import 'package:tune/widgets/music/display/audio_player_mini.dart';
-import 'package:tune/widgets/music/display/playlist_viewer.dart';
 import 'package:tune/widgets/music/display/playlist_viewer_item.dart';
-import 'package:tune/widgets/overflow_handlers/vertical_scroll.dart';
-import 'package:tune/widgets/buttons/icon_button.dart';
+import 'package:tune/widgets/scroller/vertical_scroll.dart';
+
+import '../../widgets/music/display/audio_player_mini.dart';
 
 class PlaylistScreen extends StatefulWidget {
   const PlaylistScreen({Key? key}) : super(key: key);
@@ -27,29 +23,7 @@ class PlaylistScreen extends StatefulWidget {
 }
 
 class _PlaylistScreenState extends State<PlaylistScreen> {
-  Timer? timer;
   List<PlaylistViewerItem> children = [];
-  late int prevIndex;
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      prevIndex = Provider.of<AudioHandlerAdmin>(context, listen: false)
-          .getCurrentlyPlayingAudioIndex;
-      timer = Timer.periodic(Duration(seconds: 1), (timer) {
-        setState(() {
-          addChildren();
-        });
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-    timer?.cancel();
-  }
 
   void addChildren() {
     children = [];
@@ -61,6 +35,9 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
       children.add(
         PlaylistViewerItem(
           index: i,
+          onChangeSongList: () {
+            setState(() {});
+          },
           currentlyPlaying: i ==
               Provider.of<AudioHandlerAdmin>(context, listen: false)
                   .getCurrentlyPlayingAudioIndex,
@@ -99,9 +76,9 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                     children: children,
                   ),
                 ),
-                Provider.of<ScreenStateTracker>(context).getAudioPlayerMini,
               ],
             ),
+            Provider.of<ScreenStateTracker>(context).getAudioPlayerMini,
           ],
         ),
       );

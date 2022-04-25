@@ -12,22 +12,51 @@ class FileHandler {
     'wav',
   ];
 
-  static Future<String?> pick() async {
+  static Future<String> getFilePath(String fileName) async {
+    Directory directory = await getApplicationDocumentsDirectory();
+    String applicationDocumentPath = directory.path;
+    return '$applicationDocumentPath/$fileName';
+  }
+
+  static Future<double> getFileSize(
+      {String? fileName, String? filePath}) async {
+    /// Either the fileName or the filePath must be provided
+    /// In case of fileName, the file will be assumed to be in the application documents directory
+    File file;
+    if (fileName != null) {
+      file = File(await getFilePath(fileName));
+    } else {
+      file = File(filePath!);
+    }
+
+    if (await file.exists()) {
+      int sizeInBytes = file.lengthSync();
+      return sizeInBytes / (1024 * 1024);
+    }
+    return 0;
+  }
+
+  static Future<void> delete(String fileName) async {
+    File file = File(await getFilePath(fileName));
+    if (await file.exists()) {
+      file.delete();
+    }
+  }
+
+  static Future<List<String?>?> pick() async {
     /// Allow user to pick files using a file browser
     FilePickerResult? file = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: supportedFileFormats,
-        withData: true);
+      type: FileType.audio,
+      allowMultiple: true,
+      dialogTitle: 'Select a song',
+      withData: true,
+    );
 
-    return file?.paths[0];
+    return file?.paths;
   }
 
   static Future<String?> read({required String fileName}) async {
-    Directory directory = await getApplicationDocumentsDirectory();
-    String applicationDocumentPath = directory.path;
-    String filePath = '$applicationDocumentPath/$fileName';
-
-    File file = File(filePath);
+    File file = File(await getFilePath(fileName));
     if (await file.exists()) {
       return file.readAsString();
     }
@@ -39,18 +68,19 @@ class FileHandler {
       String? fileContents,
       required String fileName}) async {
     /// Either fileBytes or files should be supplied
-    Directory directory = await getApplicationDocumentsDirectory();
-    String applicationDocumentPath = directory.path;
-    String filePath = '$applicationDocumentPath/$fileName';
+    String filePath = await getFilePath(fileName);
 
     File file = File(filePath);
-    if (await file.exists()) {
-      file.delete(); // If old file is there delete that to store the new
-    }
 
     if (fileBytes != null) {
+      if (await file.exists()) {
+        file.delete(); // If old file is there delete that to store the new
+      }
       file.writeAsBytes(fileBytes); // For files like of images
     } else if (fileContents != null) {
+      if (await file.exists()) {
+        file.delete(); // If old file is there delete that to store the new
+      }
       file.writeAsString(
           fileContents); // For files like of json for info storing
     }
