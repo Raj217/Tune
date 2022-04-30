@@ -1,18 +1,15 @@
-/// Currently playing playlist screen
+// TODO: Add animations to poster and list view
 
-import 'dart:async';
-
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:tune/utils/provider/music/audio_handler_admin.dart';
+import 'package:tune/utils/audio/audio_handler_admin.dart';
 import 'package:tune/utils/states/screen_state_tracker.dart';
 import 'package:tune/widgets/app_bar.dart';
 import 'package:tune/widgets/img/poster.dart';
 import 'package:tune/widgets/music/display/playlist_viewer_item.dart';
 import 'package:tune/widgets/scroller/vertical_scroll.dart';
-
-import '../../widgets/music/display/audio_player_mini.dart';
 
 class PlaylistScreen extends StatefulWidget {
   const PlaylistScreen({Key? key}) : super(key: key);
@@ -23,34 +20,10 @@ class PlaylistScreen extends StatefulWidget {
 }
 
 class _PlaylistScreenState extends State<PlaylistScreen> {
-  List<PlaylistViewerItem> children = [];
-
-  void addChildren() {
-    children = [];
-    for (int i = 0;
-        i <
-            Provider.of<AudioHandlerAdmin>(context, listen: false)
-                .getNAudioValueNotifier;
-        i++) {
-      children.add(
-        PlaylistViewerItem(
-          index: i,
-          onChangeSongList: () {
-            setState(() {});
-          },
-          currentlyPlaying: i ==
-              Provider.of<AudioHandlerAdmin>(context, listen: false)
-                  .getCurrentlyPlayingAudioIndex,
-        ),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<AudioHandlerAdmin>(builder: (context, handler, _) {
       Size screenSize = MediaQuery.of(context).size;
-      addChildren();
       return VerticalScroll(
         screenSize: screenSize,
         child: Column(
@@ -62,9 +35,9 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                 Stack(
                   children: [
                     CustomAppBar(
-                      showIcons: const [0, 2],
+                      showIcons: const [0, 3],
                     ),
-                    const Poster()
+                    Poster()
                   ],
                 ),
                 const SizedBox(
@@ -73,8 +46,19 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                 SizedBox(
                   height: screenSize.height * (270 / 756),
                   child: ListView(
-                    children: children,
-                  ),
+                      children: handler.getAllAudioData['all songs']!
+                          .asMap()
+                          .entries
+                          .map((entry) {
+                    int index = entry.key;
+                    MediaItem mediaItem = entry.value;
+
+                    return PlaylistViewerItem(
+                      index: index,
+                      isCurrentlyPlaying:
+                          mediaItem == handler.getAudioHandler.mediaItem.value,
+                    );
+                  }).toList()),
                 ),
               ],
             ),

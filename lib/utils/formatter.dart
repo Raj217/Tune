@@ -30,22 +30,38 @@ class Formatter {
     }
   }
 
-  static String stringOverflowHandler(
-      {String? text, required double width, required TextStyle style}) {
+  static Text stringOverflowHandler({
+    String? text,
+    TextAlign? textAlign,
+    required double width,
+    required TextStyle style,
+  }) {
     if (text != null) {
       Size _txtSize = textSize(text, style);
       if (_txtSize.width < width) {
-        return text;
+        return Text(
+          text,
+          style: style,
+          textAlign: textAlign,
+        );
       } else {
         String outText = text[0];
         int ind = 1;
         while (textSize(outText + '...', style).width <= width) {
           outText += text[ind++];
         }
-        return outText + '...';
+        return Text(
+          outText + '...',
+          style: style,
+          textAlign: textAlign,
+        );
       }
     } else {
-      return ' ';
+      return Text(
+        ' ',
+        style: style,
+        textAlign: textAlign,
+      );
     }
   }
 

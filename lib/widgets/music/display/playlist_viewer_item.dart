@@ -1,27 +1,26 @@
-import 'dart:async';
-
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 
-import 'package:tune/screens/audio_related/song_options.dart';
-import 'package:tune/utils/constants/system_constants.dart';
+import 'package:tune/screens/main_screens/tertiary/song_options.dart';
+import 'package:tune/utils/app_constants.dart';
 import 'package:tune/utils/formatter.dart';
-import 'package:tune/utils/provider/music/audio_handler_admin.dart';
+import 'package:tune/utils/audio/audio_handler_admin.dart';
 import 'package:tune/widgets/buttons/extended_button.dart';
 import 'dart:math';
 
 class PlaylistViewerItem extends StatefulWidget {
+  /// Index of the item
   final int index;
-  final bool currentlyPlaying;
-  final void Function() onChangeSongList;
+
+  /// Is this item currently playing?
+  final bool isCurrentlyPlaying;
+
   Color? _color;
   PlaylistViewerItem(
       {Key? key,
       required this.index,
-      required this.onChangeSongList,
-      this.currentlyPlaying = false,
+      this.isCurrentlyPlaying = false,
       Color? color})
       : _color = color,
         super(key: key);
@@ -35,73 +34,60 @@ class _PlaylistViewerItemState extends State<PlaylistViewerItem> {
   @override
   Widget build(BuildContext context) {
     Color color = widget._color ??
-        (widget.currentlyPlaying ? kBaseColor : kInactiveColor);
+        (widget.isCurrentlyPlaying
+            ? AppConstants.colors.secondaryColors.kBaseColor
+            : AppConstants.colors.secondaryColors.kInactiveColor);
     MediaItem mediaItem = Provider.of<AudioHandlerAdmin>(context, listen: false)
         .getAudioData[widget.index];
     return InkWell(
-      onTap: () async {
-        await Provider.of<AudioHandlerAdmin>(context, listen: false)
+      onTap: () {
+        Provider.of<AudioHandlerAdmin>(context, listen: false)
             .getAudioHandler
             .skipToQueueItem(widget.index);
       },
       child: SizedBox(
         child: Padding(
-          padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              Formatter.stringOverflowHandler(
+                text: mediaItem.title,
+                width: MediaQuery.of(context).size.width / 1.6,
+                style: AppConstants.textStyles.kAudioTitleTextStyle
+                    .copyWith(color: color, fontSize: 13),
+              ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    Formatter.stringOverflowHandler(
-                      text: mediaItem.title,
-                      width: MediaQuery.of(context).size.width / 1.6,
-                      style: kAudioTitleTextStyle.copyWith(
-                          color: color, fontSize: 13),
-                    ),
-                    style: kAudioTitleTextStyle.copyWith(
-                        color: color, fontSize: 13),
-                    textAlign: TextAlign.center,
+                    Formatter.durationFormatted(mediaItem.duration!),
+                    style: AppConstants.textStyles.kAudioArtistTextStyle
+                        .copyWith(color: color),
                   ),
-                  Row(
-                    children: [
-                      Text(
-                        Formatter.durationFormatted(mediaItem.duration!),
-                        style: kAudioArtistTextStyle.copyWith(color: color),
-                      ),
-                      ExtendedButton(
-                        extendedRadius: 25,
-                        svgName: 'appOptions',
-                        svgHeight: 4,
-                        angle: pi / 2,
-                        svgColor: color,
-                        onTap: () {
-                          showModalBottomSheet(
-                                  backgroundColor: Colors.transparent,
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    setBottomNavBarColor(kSongOptionsBGColor);
-                                    return SongOptions(
-                                      mediaItem: mediaItem,
-                                      onChangeSongList: widget.onChangeSongList,
-                                    );
-                                  })
-                              .then((value) =>
-                                  setBottomNavBarColor(kBaseCounterColor));
-                        },
-                      )
-                    ],
+                  ExtendedButton(
+                    extendedRadius: 25,
+                    svgName: icons.appOptions,
+                    svgHeight: 4,
+                    angle: pi / 2,
+                    svgColor: color,
+                    onTap: () {
+                      showModalBottomSheet(
+                              backgroundColor: Colors.transparent,
+                              context: context,
+                              builder: (BuildContext context) {
+                                AppConstants.systemConfigs.setBottomNavBarColor(
+                                    AppConstants.colors.tertiaryColors
+                                        .kSongOptionsBGColor);
+                                return AudioOptions(
+                                  mediaItem: mediaItem,
+                                );
+                              })
+                          .then((value) => AppConstants.systemConfigs
+                              .setBottomNavBarColor(AppConstants
+                                  .colors.secondaryColors.kBaseCounterColor));
+                    },
                   )
                 ],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Container(
-                color: color,
-                height: 1,
-                width: MediaQuery.of(context).size.width * 0.5,
               )
             ],
           ),

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:tune/utils/constants/system_constants.dart';
+import 'package:tune/utils/app_constants.dart';
 
-Future showToast({required BuildContext context, required String text}) {
+/// Displays a toast for [AppConstants.durations.kToastDuration] duration
+/// and fades away with animation
+Future toast({required BuildContext context, required String text}) {
   return Navigator.push(
       context,
       PageRouteBuilder(
@@ -14,10 +16,12 @@ Future showToast({required BuildContext context, required String text}) {
 }
 
 class _Toast extends StatefulWidget {
-  final Duration duration;
+  final Duration _duration;
   final String text;
-  const _Toast({Key? key, required this.text, this.duration = kToastDuration})
-      : super(key: key);
+  // TODO: Implement curves
+  _Toast({Key? key, required this.text, Duration? duration})
+      : _duration = duration ?? AppConstants.durations.kToastDuration,
+        super(key: key);
 
   @override
   State<_Toast> createState() => _ToastState();
@@ -28,13 +32,13 @@ class _ToastState extends State<_Toast> with TickerProviderStateMixin {
   @override
   void initState() {
     _opacityController =
-        AnimationController(vsync: this, duration: widget.duration)
+        AnimationController(vsync: this, duration: widget._duration)
           ..addListener(() {
             setState(() {});
           });
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) async {
       _opacityController.value = 1;
-      await Future.delayed(widget.duration);
+      await Future.delayed(widget._duration);
       await _opacityController.reverse(from: 1);
       Navigator.pop(context);
     });
@@ -56,14 +60,14 @@ class _ToastState extends State<_Toast> with TickerProviderStateMixin {
           child: Opacity(
             opacity: _opacityController.value,
             child: Container(
-              decoration: const BoxDecoration(
-                  color: kToastBgColor,
-                  borderRadius: BorderRadius.all(Radius.circular(40))),
+              decoration: BoxDecoration(
+                  color: AppConstants.colors.tertiaryColors.kToastBgColor,
+                  borderRadius: AppConstants.borderRadius.kToastBGBorderRadius),
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Text(
                   widget.text,
-                  style: kToastTextStyle,
+                  style: AppConstants.textStyles.kToastTextStyle,
                 ),
               ),
             ),

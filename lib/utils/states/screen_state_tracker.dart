@@ -1,82 +1,85 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_zoom_drawer/config.dart';
-import 'package:tune/screens/main%20screens/home_screen.dart';
-import 'package:tune/screens/main%20screens/local_audio_screen.dart';
-import 'package:tune/screens/main%20screens/playlist_screen.dart';
-import 'package:tune/utils/constants/system_constants.dart';
-import 'package:tune/utils/provider/music/audio_handler_admin.dart';
 import 'dart:math';
 
-import '../../widgets/music/display/audio_player_mini.dart';
+import 'package:tune/screens/main_screens/primary/home_screen.dart';
+import 'package:tune/screens/main_screens/primary/local_audio_screen.dart';
+import 'package:tune/screens/main_screens/primary/playlist_screen.dart';
+import 'package:tune/utils/app_constants.dart';
+import 'package:tune/widgets/music/display/audio_player_mini.dart';
+import 'package:tune/widgets/music/display/playlist_viewer_item.dart';
 
 class ScreenStateTracker extends ChangeNotifier {
   /// Index of Screen
-  int _index = 1;
+  int _screenIndex = 1;
 
+  /// Currently showing avatar (TODO: Make it constant by storing)
   int _avatarIndex = 0;
-  List<String> _avatarPaths = [];
 
   ScreenStateTracker() {
     _avatarIndex = Random().nextInt(6);
-    for (int i = 1; i < 7; i++) {
-      if (i < 3) {
-        _avatarPaths.add(kDefaultAvatarsPath + 'Female $i.svg');
-      } else {
-        _avatarPaths.add(kDefaultAvatarsPath + 'Male ${(i % 3) + 1}.svg');
-      }
-    }
   }
 
   /// List of Screens
-  final List screens = const [
+  final List _screens = const [
     HomeScreen(),
     LocalAudioScreen(),
     PlaylistScreen()
   ];
 
+  /// Initialised once so that it can be used in all the [_screens]
+  ///
+  /// This value is changed when needed in the different [_screens]
   AudioPlayerMini _audioPlayerMini = AudioPlayerMini();
 
   final ZoomDrawerController _zoomDrawerController = ZoomDrawerController();
-  bool menuShowing = false;
 
+  /// Helpful when there is no audio to play, so that the [_audioPlayerMini]
+  /// hides instead of throwing error of not getting audio title, etc.
   bool _shouldShowAudioPlayerMini = true;
 
+  /// Toggle between menu screen and main screen
   void toggleMenu() {
     _zoomDrawerController.toggle?.call();
-    menuShowing = !menuShowing;
     notifyListeners();
   }
 
   void changeAvatarIndex(int index) {
-    if (index < _avatarPaths.length) {
+    if (index < AppConstants.paths.kAvatarPaths.length) {
       _avatarIndex = index;
     }
   }
 
   // -------------------------------- Getter methods --------------------------------
-  int get getIndex => _index;
+  int get getScreenIndex => _screenIndex;
 
-  Widget get getScreen => screens[_index];
+  Widget get getScreen => _screens[_screenIndex];
 
   bool get getShouldShowAudioPlayerMini => _shouldShowAudioPlayerMini;
 
   ZoomDrawerController get getZoomDrawController => _zoomDrawerController;
 
-  bool get getIsMenuShowing => menuShowing;
-
   AudioPlayerMini get getAudioPlayerMini => _audioPlayerMini;
 
-  String get getRandomAvatarPath => _avatarPaths[_avatarIndex];
-  // -------------------------------- Setter methods --------------------------------
-  set setIndex(int index) => _index = index;
+  String get getRandomAvatarPath => AppConstants.paths.kAvatarPaths[
+      AppConstants.paths.kAvatarPaths.keys.toList()[_avatarIndex]]!;
 
-  set setShouldShowAudioPlayerMini(bool choice) =>
-      _shouldShowAudioPlayerMini = choice;
+  // -------------------------------- Setter methods --------------------------------
+  set setScreenIndex(int index) {
+    _screenIndex = index;
+    notifyListeners();
+  }
+
+  set setShouldShowAudioPlayerMini(bool choice) {
+    _shouldShowAudioPlayerMini = choice;
+    if (choice == true) {
+      notifyListeners();
+    }
+  }
 
   set setAudioPlayerMini(AudioPlayerMini audioPlayerMini) {
-    _audioPlayerMini = audioPlayerMini;
+    _audioPlayerMini = audioPlayerMini; //TODO: The player might be disposed
     notifyListeners();
   }
 }

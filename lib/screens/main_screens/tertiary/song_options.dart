@@ -1,38 +1,88 @@
 import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
-import 'package:tune/screens/audio_related/song_info.dart';
-import 'package:tune/utils/constants/system_constants.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:tune/utils/provider/music/audio_handler_admin.dart';
+
+import 'package:tune/utils/audio/audio_handler_admin.dart';
 import 'package:tune/widgets/animation/toast.dart';
 import 'package:tune/widgets/scroller/value_picker.dart';
+import 'song_info.dart';
+import 'package:tune/utils/app_constants.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:tune/utils/states/screen_state_tracker.dart';
+import 'package:tune/widgets/music/display/audio_player_mini.dart';
 
-import '../../utils/states/screen_state_tracker.dart';
-import '../../widgets/music/display/audio_player_mini.dart';
-
-class SongOptions extends StatefulWidget {
+class AudioOptions extends StatefulWidget {
   final MediaItem? mediaItem;
-  final void Function()? onChangeSongList;
-  const SongOptions({Key? key, this.mediaItem, this.onChangeSongList})
-      : super(key: key);
+
+  /// Shows and does the various options available for the audio file
+  const AudioOptions({Key? key, this.mediaItem}) : super(key: key);
 
   @override
-  State<SongOptions> createState() => _SongOptionsState();
+  State<AudioOptions> createState() => _AudioOptionsState();
 }
 
-class _SongOptionsState extends State<SongOptions> {
+class _AudioOptionsState extends State<AudioOptions> {
+  /// If this is true both speed and pitch of the audio will be changed,
+  /// else only the one which is changed by the user will be changed(i.e. the
+  /// other one won't change automatically)
   bool changeOther = true;
+
+  /// What are the values you want to pass to [ValuePicke] (i.e. values available
+  /// for the user to change speed/pitch)
   List<double> values = [];
+
+  /// Is Speed/Pitch change allowed?
+  ///
+  /// TODO: Remove this by storing the values
   bool canEditSpeedAndPitch = false;
+
+  /// Either svgName or icon must be provided,
+  /// If both are provided icon will be displayed
+  GestureDetector _button(
+      {IconData? icon,
+      icons? svgName,
+      required String text,
+      required void Function() onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 18),
+        child: Row(
+          children: [
+            icon != null
+                ? Icon(
+                    icon,
+                    size: AppConstants.sizes.kDefaultIconWidth,
+                    color:
+                        AppConstants.colors.tertiaryColors.kDefaultIconsColor,
+                  )
+                : SvgPicture.asset(
+                    AppConstants.paths.kIconPaths[svgName]!,
+                    width: AppConstants.sizes.kDefaultIconWidth,
+                    color:
+                        AppConstants.colors.tertiaryColors.kDefaultIconsColor,
+                  ),
+            const SizedBox(
+              width: 10,
+            ),
+            Text(
+              text,
+              style: AppConstants.textStyles.kSongOptionsTextStyle,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<AudioHandlerAdmin>(builder: (_, handler, __) {
       for (int i = 0; i <= 30; i++) {
+        // 0.0 to 3.0
         values.add(i / 10);
       }
       if (widget.mediaItem != null &&
@@ -40,11 +90,9 @@ class _SongOptionsState extends State<SongOptions> {
         canEditSpeedAndPitch = true;
       }
       return Container(
-        decoration: const BoxDecoration(
-          color: kSongOptionsBGColor,
-          borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(40), topRight: Radius.circular(40)),
-        ),
+        decoration: BoxDecoration(
+            color: AppConstants.colors.tertiaryColors.kSongOptionsBGColor,
+            borderRadius: AppConstants.borderRadius.kSongOptionsBGBorderRadius),
         height: double.infinity,
         child: Padding(
           padding: const EdgeInsets.only(top: 50.0),
@@ -52,11 +100,11 @@ class _SongOptionsState extends State<SongOptions> {
             child: Column(
               children: [
                 _button(
-                    svgName: 'sound wave',
+                    svgName: icons.soundWave,
                     text: 'change pitch',
                     onTap: () {
                       if (canEditSpeedAndPitch) {
-                        showValueScroller(
+                        valuePicker(
                           context: context,
                           values: values,
                           index: (handler.getPlayer.pitch * 10).toInt(),
@@ -73,7 +121,7 @@ class _SongOptionsState extends State<SongOptions> {
                           },
                         );
                       } else {
-                        showToast(
+                        toast(
                             context: context,
                             text:
                                 "pitch can be changed of only the currently playing song");
@@ -84,7 +132,7 @@ class _SongOptionsState extends State<SongOptions> {
                     text: 'change speed',
                     onTap: () {
                       if (canEditSpeedAndPitch) {
-                        showValueScroller(
+                        valuePicker(
                             context: context,
                             values: values,
                             index: (handler.getPlayer.speed * 10).toInt(),
@@ -100,7 +148,7 @@ class _SongOptionsState extends State<SongOptions> {
                               }
                             });
                       } else {
-                        showToast(
+                        toast(
                             context: context,
                             text:
                                 "speed can be changed of only the currently playing song");
@@ -122,9 +170,10 @@ class _SongOptionsState extends State<SongOptions> {
                       if (widget.mediaItem != null) {
                         Navigator.push(context,
                             MaterialPageRoute(builder: (context) {
-                          return SongInfo(mediaItem: widget.mediaItem!);
-                        })).then(
-                            (val) => setBottomNavBarColor(kSongOptionsBGColor));
+                          return AudioInfo(mediaItem: widget.mediaItem!);
+                        })).then((val) => AppConstants.systemConfigs
+                            .setBottomNavBarColor(AppConstants
+                                .colors.tertiaryColors.kSongOptionsBGColor));
                       }
                     }),
                 _button(
@@ -132,14 +181,9 @@ class _SongOptionsState extends State<SongOptions> {
                     text: 'remove from playlist',
                     onTap: () async {
                       await handler.removeAudio(mediaItem: widget.mediaItem);
-                      if (widget.onChangeSongList != null) {
-                        widget.onChangeSongList!();
-                      }
-                      if (handler.getNAudioValueNotifier == 0) {
+                      if (handler.getNumberOfAudios == 0) {
                         Provider.of<ScreenStateTracker>(context, listen: false)
-                            .setAudioPlayerMini = AudioPlayerMini(
-                          visible: false,
-                        );
+                            .setAudioPlayerMini = AudioPlayerMini();
                       }
                       Navigator.pop(context);
                     }),
@@ -150,63 +194,4 @@ class _SongOptionsState extends State<SongOptions> {
       );
     });
   }
-}
-
-Future<void> showValueScroller(
-    {required BuildContext context,
-    required List<double> values,
-    required bool changeOther,
-    required String changeOtherText,
-    required void Function(double value) onChange,
-    required void Function(bool value) onChangeOtherBoolFunction,
-    int index = 10}) async {
-  await showModalBottomSheet(
-      backgroundColor: Colors.transparent,
-      context: context,
-      builder: (BuildContext context) {
-        return ValuePicker(
-            values: values,
-            onValueChange: onChange,
-            index: index,
-            changeOther: changeOther,
-            changeOtherText: changeOtherText,
-            onChangeOtherBoolFunction: onChangeOtherBoolFunction);
-      });
-}
-
-GestureDetector _button(
-    {IconData? icon,
-    String? svgName,
-    required String text,
-    required void Function() onTap}) {
-  /// Either svgName or icon must be provided,
-  /// If both are provided icon will be displayed
-  return GestureDetector(
-    onTap: onTap,
-    child: Padding(
-      padding: const EdgeInsets.only(top: 18, left: 18),
-      child: Row(
-        children: [
-          icon != null
-              ? Icon(
-                  icon,
-                  size: kDefaultIconWidth,
-                  color: kIconsColor,
-                )
-              : SvgPicture.asset(
-                  kDefaultIconsPath + '/$svgName.svg',
-                  width: kDefaultIconWidth,
-                  color: kIconsColor,
-                ),
-          const SizedBox(
-            width: 10,
-          ),
-          Text(
-            text,
-            style: kSongOptionsTextStyle,
-          ),
-        ],
-      ),
-    ),
-  );
 }

@@ -1,24 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:tune/utils/constants/system_constants.dart';
+
+import 'package:tune/utils/app_constants.dart';
 
 class LiquidAnimation extends StatelessWidget {
   /// Height of base
-  final double height;
+  final double _height;
 
-  const LiquidAnimation({Key? key, this.height = kDefaultMiniAudioBaseHeight})
-      : super(key: key);
+  LiquidAnimation({Key? key, double? height})
+      : _height = height ?? AppConstants.sizes.kDefaultMiniAudioBaseHeight,
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         Lottie.asset(
-          '$kDefaultLottieAnimationsPath/wave-flow.json',
+          AppConstants.paths.kLottieAnimationPaths[animations.waveFlow]!,
         ),
         CustomPaint(
           painter:
-              Base(width: MediaQuery.of(context).size.width, height: height),
+              Base(width: MediaQuery.of(context).size.width, height: _height),
         )
       ],
     );
@@ -33,7 +35,7 @@ class Base extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     Paint paint = Paint();
-    paint.color = kBaseColor;
+    paint.color = AppConstants.colors.secondaryColors.kBaseColor;
     canvas.drawRect(Rect.fromLTWH(0, height / 4, width, height), paint);
   }
 

@@ -1,28 +1,29 @@
 /// Tune
 /// Code By: Rajdristant Ghose
 ///
-/// A music app
+/// A audio app
+/// Currently only supports for songs but in future versions it will customised
+/// for podcasts and other audio files
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:tune/screens/bottom_navigator.dart';
-import 'package:tune/screens/main%20screens/home_screen.dart';
-import 'package:tune/screens/main%20screens/local_audio_screen.dart';
-import 'package:tune/screens/main%20screens/splash_screen.dart';
-import 'package:tune/screens/main%20screens/playlist_screen.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:tune/utils/app_constants.dart';
 
-import 'screens/audio_related/audio_player_screen.dart';
-import 'utils/provider/music/audio_handler_admin.dart';
-import 'utils/states/screen_state_tracker.dart';
+import 'package:tune/utils/audio/audio_handler_admin.dart';
+import 'package:tune/utils/states/screen_state_tracker.dart';
+import 'screens/custom_drawer.dart';
+import 'screens/menu_screens/menu_screen.dart';
+import 'screens/splash_screen.dart';
 
 late AudioHandler _audioHandler;
-void main() async {
+
+Future<void> main() async {
   _audioHandler = await AudioService.init(
       builder: () => AudioPlayerHandler(),
       config: const AudioServiceConfig(
-        androidNotificationChannelId:
-            'com.ryanheise.myapp.channel.audio_related',
+        androidNotificationChannelId: 'com.raj.tune.audio',
         androidNotificationChannelName: 'Audio playback',
         androidNotificationOngoing: true,
       ));
@@ -36,25 +37,31 @@ class Tune extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(
+        ChangeNotifierProvider<AudioHandlerAdmin>(
             create: (BuildContext context) =>
                 AudioHandlerAdmin(audioHandler: _audioHandler)),
-        ChangeNotifierProvider(
-            create: (BuildContext context) => ScreenStateTracker())
+        ChangeNotifierProvider<ScreenStateTracker>(
+            create: (BuildContext context) => ScreenStateTracker()),
       ],
       child: MaterialApp(
+        navigatorObservers: [SentryNavigatorObserver()],
         debugShowCheckedModeBanner: false,
         title: 'Tune',
-        theme: ThemeData.dark(),
+        theme: ThemeData.dark().copyWith(
+          colorScheme: ColorScheme.fromSwatch(
+              accentColor: AppConstants.colors.secondaryColors.kInactiveColor),
+        ), // Overscroll Glow color for ListView
         initialRoute: SplashScreen.id,
         routes: {
-          AudioPlayerScreen.id: (BuildContext context) =>
-              const AudioPlayerScreen(),
-          BottomNavigator.id: (BuildContext context) => const BottomNavigator(),
-          HomeScreen.id: (BuildContext context) => const HomeScreen(),
-          LocalAudioScreen.id: (BuildContext context) =>
-              const LocalAudioScreen(),
-          PlaylistScreen.id: (BuildContext context) => const PlaylistScreen(),
+          /// I have mentioned only the following routes since the other need
+          /// some initialisation value which is calculated while the app is
+          /// running
+          ///
+          /// while some like the home, local_audio,etc don't need routes as
+          /// bottom navigator (main screen) will handle that
+          CustomDrawer.id: (BuildContext context) => const CustomDrawer(),
+          MenuScreen.id: (BuildContext context) => const MenuScreen(),
+          MenuScreen.id: (BuildContext context) => const MenuScreen(),
           SplashScreen.id: (BuildContext context) => const SplashScreen(),
         },
       ),

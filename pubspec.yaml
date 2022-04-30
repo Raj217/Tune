@@ -27,7 +27,7 @@ dependencies:
   liquid_swipe: ^2.1.1
   flutter_zoom_drawer: ^3.0.1
   share_plus: ^4.0.4
-
+  sentry_flutter: ^6.5.1
 
 dev_dependencies:
   flutter_test:

@@ -1,17 +1,16 @@
-/// A mini progress bar to show the progress of the audio_related
-
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 
-import 'package:tune/utils/constants/system_constants.dart';
-import 'package:tune/utils/provider/music/audio_handler_admin.dart';
+import 'package:tune/utils/app_constants.dart';
+import 'package:tune/utils/audio/audio_handler_admin.dart';
 
 class CircularProgressMini extends StatefulWidget {
   final Duration _min;
   final Duration _max;
 
+  /// A mini progress bar to show the progress of the audio_related
   const CircularProgressMini({
     Key? key,
     required Duration max,
@@ -28,16 +27,12 @@ class _CircularProgressMiniState extends State<CircularProgressMini> {
   late Timer timer;
   @override
   void initState() {
-    super.initState();
-
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      timer = Timer.periodic(kDurationOneSecond, (timer) {
-        if (Provider.of<AudioHandlerAdmin>(context, listen: false)
-            .getIsPlaying) {
-          setState(() {});
-        }
+      timer = Timer.periodic(AppConstants.durations.kOneSecond, (timer) {
+        setState(() {});
       });
     });
+    super.initState();
   }
 
   @override
@@ -51,25 +46,28 @@ class _CircularProgressMiniState extends State<CircularProgressMini> {
     return SleekCircularSlider(
       min: widget._min.inMilliseconds.toDouble(),
       max: widget._max.inMilliseconds.toDouble(),
-      initialValue: Provider.of<AudioHandlerAdmin>(context)
+      initialValue: Provider.of<AudioHandlerAdmin>(context, listen: false)
           .getPosition
           .inMilliseconds
           .toDouble(),
       appearance: CircularSliderAppearance(
-        size: 35,
-        startAngle: -90,
+        size: AppConstants.sizes.kCircularProgressMiniSize,
+        startAngle: AppConstants.angles.kCircularProgressMiniStartAngle,
         angleRange: 360,
         infoProperties: InfoProperties(
           mainLabelStyle: const TextStyle(color: Colors.transparent),
         ),
         customWidths: CustomSliderWidths(
-          progressBarWidth: 2,
+          progressBarWidth:
+              AppConstants.sizes.kCircularProgressMiniProgressBarWidth,
           handlerSize: 0,
-          trackWidth: 1,
+          trackWidth: AppConstants.sizes.kCircularProgressMiniTrackWidth,
         ),
         customColors: CustomSliderColors(
-          progressBarColor: kBaseCounterColor,
-          trackColor: kCircularProgressBarTrackColor,
+          progressBarColor:
+              AppConstants.colors.secondaryColors.kBaseCounterColor,
+          trackColor:
+              AppConstants.colors.tertiaryColors.kCircularProgressBarTrackColor,
         ),
       ),
     );

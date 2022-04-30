@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import 'package:tune/utils/constants/system_constants.dart';
+import 'package:tune/utils/app_constants.dart';
 
 class ExtendedButton extends StatelessWidget {
   /// Radius of the circle so that this widget responds to onTap
-  double extendedRadius;
+  final double _extendedRadius;
 
   /// Color of the BG, by default [Colors.transparent]
   final Color extendedBGColor;
 
-  /// Svg file name of the icon (don't include .svg)
-  final String? svgName;
+  /// Svg file name of the icon
+  final icons? svgName;
 
   double? svgHeight;
   double? svgWidth;
 
   final String? svgPath;
 
-  final Color svgColor;
+  final Color _svgColor;
 
   /// Angle of rotation of the Icon
   final double angle;
@@ -29,30 +29,43 @@ class ExtendedButton extends StatelessWidget {
   /// When tapped on the icon or extended region
   final void Function()? onTap;
 
+  /// If this is false (default) the svgHeight will be considered else svgWidth
+  /// will be considered in case both svgHeight and svgWidth are null
+  final bool takeDefaultAsWidth;
+
   /// Creates a button with extended area so that it will be easier for the
   /// user to tap and use that button
 
   ExtendedButton(
       {Key? key,
-      this.extendedRadius = kDefaultExtendedButtonRadius,
+      double? extendedRadius,
       this.extendedBGColor = Colors.transparent,
       this.svgName,
       this.svgPath,
       this.svgHeight,
       this.svgWidth,
-      this.svgColor = kIconsColor,
+      Color? svgColor,
       this.angle = 0,
       this.child,
-      this.onTap})
+      this.onTap,
+      this.takeDefaultAsWidth = false})
       : assert(svgName != null || svgPath != null || child != null,
-            'either of svgName/Path/child must be provided'),
+            'either svgName/Path/child must be provided'),
+        _extendedRadius =
+            extendedRadius ?? AppConstants.sizes.kDefaultExtendedButtonRadius,
+        _svgColor =
+            svgColor ?? AppConstants.colors.tertiaryColors.kDefaultIconsColor,
         super(key: key) {
     if (svgHeight == null && svgWidth == null) {
-      svgHeight = kDefaultIconHeight;
+      if (takeDefaultAsWidth == false) {
+        svgHeight = AppConstants.sizes.kDefaultIconHeight;
+      } else {
+        svgWidth = AppConstants.sizes.kDefaultIconWidth;
+      }
     }
-    if (svgHeight != null && extendedRadius < svgHeight!) {
+    if (svgHeight != null && _extendedRadius < svgHeight!) {
       extendedRadius = svgHeight! + 10;
-    } else if (svgWidth != null && extendedRadius < svgWidth!) {
+    } else if (svgWidth != null && _extendedRadius < svgWidth!) {
       extendedRadius = svgWidth! + 10;
     }
   }
@@ -69,14 +82,14 @@ class ExtendedButton extends StatelessWidget {
               Icon(
                 Icons.circle,
                 color: extendedBGColor,
-                size: extendedRadius,
+                size: _extendedRadius,
               ),
               child ??
                   SvgPicture.asset(
-                    svgPath ?? '$kDefaultIconsPath/$svgName.svg',
+                    svgPath ?? AppConstants.paths.kIconPaths[svgName]!,
                     height: svgHeight,
                     width: svgWidth,
-                    color: svgPath == null ? svgColor : null,
+                    color: svgPath == null ? _svgColor : null,
                   ),
             ],
           ),

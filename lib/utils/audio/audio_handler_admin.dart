@@ -1,4 +1,4 @@
-/// The base file for handling all music related functions
+/// The base file for handling all audio related functions
 
 import 'dart:async';
 import 'dart:convert';
@@ -12,8 +12,8 @@ import 'package:id3tag/id3tag.dart';
 import 'dart:io';
 
 import 'package:tune/utils/storage/file_handler.dart';
-import 'package:tune/utils/constants/system_constants.dart';
-import '../../formatter.dart';
+import 'package:tune/utils/app_constants.dart';
+import 'package:tune/utils/formatter.dart';
 
 enum PlayMode {
   /// Repeat all the audios in the playlist
@@ -142,16 +142,17 @@ class AudioHandlerAdmin extends ChangeNotifier {
       _audioHandler.pause();
       if (_player.hasPrevious) {
         _audioHandler.skipToPrevious();
-      } else {
+      } else if (_player.hasNext) {
         _audioHandler.skipToNext();
+      } else {
+        _audioHandler.skipToQueueItem(0);
       }
     }
     _audioData['all songs']!.removeAt(index);
     await _playlist.removeAt(index);
     await _player.setAudioSource(_playlist);
     removeSuccess = true;
-
-    if (currentIndex != null && currentIndex < _playlist.length) {
+    if (currentIndex != null && currentIndex <= _playlist.length) {
       int? ind;
       if (index > currentIndex) {
         ind = currentIndex;
@@ -161,6 +162,7 @@ class AudioHandlerAdmin extends ChangeNotifier {
         ind = currentIndex - 1;
         isPlaying = false;
       }
+      print(ind);
       if (ind != null && ind >= 0) {
         await _player.seek(currentPos, index: ind);
         if (isPlaying) {
@@ -188,19 +190,22 @@ class AudioHandlerAdmin extends ChangeNotifier {
 
   String get getTitle {
     try {
-      return _audioHandler.mediaItem.value?.title ?? kDefaultSongName;
+      return _audioHandler.mediaItem.value?.title ??
+          AppConstants.names.kDefaultSongName;
     } catch (e) {
-      return kDefaultSongName;
+      return AppConstants.names.kDefaultSongName;
     }
   }
 
   AudioPlayer get getPlayer => _player;
-  Duration get getTotalDuration => _player.duration ?? kDurationNotInitialised;
+  Duration get getTotalDuration =>
+      _player.duration ?? AppConstants.durations.kDurationNotInitialised;
   Duration get getPosition => _player.position;
   bool get getIsPlaying => _player.playing;
   ConcatenatingAudioSource get getPlaylist => _playlist;
+  Map<String, List<MediaItem>> get getAllAudioData => _audioData;
   List<MediaItem> get getAudioData => _audioData['all songs']!;
-  int get getNAudioValueNotifier => _audioData['all songs']!.length;
+  int get getNumberOfAudios => _audioData['all songs']!.length;
   int get getCurrentlyPlayingAudioIndex => _player.currentIndex ?? -1;
   bool get getIsUpdating => _isUpdating;
   Future<void> updateMediaItem() async {
@@ -237,6 +242,7 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
     _player.playbackEventStream.map(_transformEvent).pipe(playbackState);
   }
   static Future<MediaItem> getMediaData(String filePath) async {
+    String playlistName = 'all songs';
     final parser = ID3TagReader(File(filePath));
     ID3Tag _metaData = parser.readTagSync();
 
@@ -250,13 +256,16 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
     if (imgData != null) {
       imgBytes = Uint8List.fromList(imgData);
     } else {
-      await rootBundle.load(kDefaultPosterImgPath).then((ByteData bytes) async {
+      await rootBundle
+          .load(AppConstants.paths.kDefaultPosterImgPath)
+          .then((ByteData bytes) {
         imgBytes = bytes.buffer.asUint8List();
       });
     }
 
-    String posterPath =
-        await FileHandler.save(fileBytes: imgBytes, fileName: 'poster_img.txt');
+    String posterPath = await FileHandler.save(
+        fileBytes: imgBytes,
+        fileName: 'poster_img${_audioData['all songs']!.length}');
 
     List<int> imageData = [];
     if (_metaData.pictures.isNotEmpty) {
@@ -301,9 +310,9 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
   Future<void> skipToPrevious() async {
     if (_player.hasPrevious && !_isUpdating) {
       _isUpdating = true;
-      _player.seekToPrevious();
-      await updateMediaItem(_audioData['all songs']![_player.currentIndex!])
-          .then((value) => _isUpdating = false);
+      await _player.seekToPrevious();
+      await updateMediaItem(_audioData['all songs']![_player.currentIndex!]);
+      play();
     }
   }
 
@@ -311,9 +320,10 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
   Future<void> skipToNext() async {
     if (_player.hasNext && !_isUpdating) {
       _isUpdating = true;
-      _player.seekToNext();
-      await updateMediaItem(_audioData['all songs']![_player.currentIndex!])
-          .then((value) => _isUpdating = false);
+      await _player.seekToNext();
+      await updateMediaItem(_audioData['all songs']![_player.currentIndex!]);
+      _isUpdating = false;
+      play();
     }
   }
 
@@ -322,10 +332,9 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
     if (!_isUpdating) {
       _isUpdating = true;
       await _player.seek(Duration.zero, index: index);
-      updateMediaItem(_audioData['all songs']![index]).then((value) {
-        _isUpdating = false;
-        play();
-      });
+      await updateMediaItem(_audioData['all songs']![index]);
+      _isUpdating = false;
+      play();
     }
   }
 

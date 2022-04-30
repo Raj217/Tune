@@ -44,6 +44,7 @@ class FileHandler {
   }
 
   static Future<List<String?>?> pick() async {
+    // TODO: Add for folder pick
     /// Allow user to pick files using a file browser
     FilePickerResult? file = await FilePicker.platform.pickFiles(
       type: FileType.audio,
