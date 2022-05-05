@@ -34,17 +34,6 @@ class _LocalAudioScreenState extends State<LocalAudioScreen> {
             CustomAppBar(),
             Column(
               children: [
-                GlowButton(
-                  child: Text('Delete cookies',
-                      style: AppConstants.textStyles.kAudioTitleTextStyle
-                          .copyWith(
-                              color: AppConstants
-                                  .colors.secondaryColors.kBackgroundColor)),
-                  color: AppConstants.colors.secondaryColors.kBaseColor,
-                  onPressed: () async {
-                    await FileHandler.delete('all.json');
-                  },
-                ),
                 Padding(
                   padding: EdgeInsets.only(
                       left: screenSize.width - screenSize.height * 0.07 - 5),
