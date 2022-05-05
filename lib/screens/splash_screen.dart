@@ -37,7 +37,10 @@ class _SplashScreenState extends State<SplashScreen>
     AppConstants.systemConfigs.setBottomNavBarColor(
         AppConstants.colors.secondaryColors.kBackgroundColor);
 
-    Future.delayed(AppConstants.durations.kSplashScreenWaitDuration).then((_) {
+    Provider.of<AudioHandlerAdmin>(context, listen: false).readPlaylist()
+
+        /// Read the initial Data
+        .then((_) {
       _lottieAnimationController.stop();
       _lottieAnimationController.dispose();
       Navigator.pushNamed(context, CustomDrawer.id).then(

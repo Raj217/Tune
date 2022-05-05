@@ -2,7 +2,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:tune/screens/main_screens/tertiary/song_options.dart';
+import 'package:tune/screens/main_screens/tertiary/audio_options.dart';
 import 'package:tune/utils/app_constants.dart';
 import 'package:tune/utils/formatter.dart';
 import 'package:tune/utils/audio/audio_handler_admin.dart';
@@ -40,7 +40,8 @@ class _PlaylistViewerItemState extends State<PlaylistViewerItem> {
     MediaItem mediaItem = Provider.of<AudioHandlerAdmin>(context, listen: false)
         .getAudioData[widget.index];
     return InkWell(
-      onTap: () {
+      onTap: () async {
+        await Future.delayed(AppConstants.durations.kQuick);
         Provider.of<AudioHandlerAdmin>(context, listen: false)
             .getAudioHandler
             .skipToQueueItem(widget.index);
@@ -79,7 +80,7 @@ class _PlaylistViewerItemState extends State<PlaylistViewerItem> {
                                     AppConstants.colors.tertiaryColors
                                         .kSongOptionsBGColor);
                                 return AudioOptions(
-                                  mediaItem: mediaItem,
+                                  index: widget.index,
                                 );
                               })
                           .then((value) => AppConstants.systemConfigs

@@ -5,11 +5,12 @@ import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'dart:math';
 
-import 'package:tune/screens/main_screens/tertiary/song_options.dart';
+import 'package:tune/screens/main_screens/tertiary/audio_options.dart';
 import 'package:tune/utils/app_constants.dart';
 import 'package:tune/utils/audio/audio_handler_admin.dart';
+import 'package:tune/utils/states/screen_state_tracker.dart';
 import 'package:tune/widgets/music/progress/audio_progress_bar.dart';
-import 'package:tune/widgets/music/progress/music_progress_digital.dart';
+import 'package:tune/widgets/music/progress/audio_progress_digital.dart';
 import 'package:tune/widgets/img/poster.dart';
 import 'package:tune/widgets/buttons/extended_button.dart';
 import 'package:tune/widgets/scroller/scrolling_text.dart';
@@ -82,7 +83,9 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
                           Padding(
                             padding:
                                 EdgeInsets.only(bottom: screenSize.height / 15),
-                            child: Poster(),
+                            child: Provider.of<ScreenStateTracker>(context,
+                                    listen: false)
+                                .getPoster,
                           ),
                           AudioProgressBar(),
                         ],
@@ -91,23 +94,25 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
                         svgName: icons.appOptions,
                         takeDefaultAsWidth: true,
                         onTap: () {
-                          showModalBottomSheet(
-                                  backgroundColor: Colors.transparent,
-                                  context: context,
-                                  builder: (context) {
-                                    AppConstants.systemConfigs
-                                        .setBottomNavBarColor(AppConstants
-                                            .colors
-                                            .tertiaryColors
-                                            .kSongOptionsBGColor);
-                                    return AudioOptions(
-                                      mediaItem: handler
-                                          .getAudioHandler.mediaItem.value,
-                                    );
-                                  })
-                              .then((value) => AppConstants.systemConfigs
-                                  .setBottomNavBarColor(AppConstants.colors
-                                      .secondaryColors.kBackgroundColor));
+                          int? index = handler.getPlayer.currentIndex;
+                          if (index != null) {
+                            showModalBottomSheet(
+                                    backgroundColor: Colors.transparent,
+                                    context: context,
+                                    builder: (context) {
+                                      AppConstants.systemConfigs
+                                          .setBottomNavBarColor(AppConstants
+                                              .colors
+                                              .tertiaryColors
+                                              .kSongOptionsBGColor);
+                                      return AudioOptions(
+                                        index: index,
+                                      );
+                                    })
+                                .then((value) => AppConstants.systemConfigs
+                                    .setBottomNavBarColor(AppConstants.colors
+                                        .secondaryColors.kBackgroundColor));
+                          }
                         },
                       )
                     ],
@@ -115,7 +120,7 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
                   const SizedBox(
                     height: 20,
                   ),
-                  MusicProgressBarDigital(
+                  AudioProgressBarDigital(
                       position: handler.getPosition,
                       totalDuration: handler.getTotalDuration),
                   const SizedBox(

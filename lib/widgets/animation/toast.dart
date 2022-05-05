@@ -62,7 +62,7 @@ class _ToastState extends State<_Toast> with TickerProviderStateMixin {
             child: Container(
               decoration: BoxDecoration(
                   color: AppConstants.colors.tertiaryColors.kToastBgColor,
-                  borderRadius: AppConstants.borderRadius.kToastBGBorderRadius),
+                  borderRadius: AppConstants.decorations.kToastBGBorderRadius),
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Text(

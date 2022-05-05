@@ -21,7 +21,7 @@ class CustomDrawer extends StatelessWidget {
       child: Consumer<ScreenStateTracker>(
         builder: (context, tracker, _) {
           return ZoomDrawer(
-            borderRadius: AppConstants.borderRadius.kZoomDrawerBorderRadius,
+            borderRadius: AppConstants.decorations.kZoomDrawerBorderRadius,
             showShadow: true,
             angle: AppConstants.angles.kZoomDrawerTiltAngle,
             slideWidth: MediaQuery.of(context).size.width * .65,

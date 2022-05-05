@@ -51,6 +51,7 @@ class _CircularProgressMiniState extends State<CircularProgressMini> {
           .inMilliseconds
           .toDouble(),
       appearance: CircularSliderAppearance(
+        animationEnabled: false,
         size: AppConstants.sizes.kCircularProgressMiniSize,
         startAngle: AppConstants.angles.kCircularProgressMiniStartAngle,
         angleRange: 360,

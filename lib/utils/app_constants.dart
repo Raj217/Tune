@@ -38,7 +38,7 @@ enum icons {
 
 class AppConstants {
   static final _Angles angles = _Angles();
-  static final _BorderRadius borderRadius = _BorderRadius();
+  static final _Decorations decorations = _Decorations();
   static final _Curves curves = _Curves();
   static final _Colors colors = _Colors();
   static final _SecondaryDurations durations = _SecondaryDurations();
@@ -54,14 +54,6 @@ class _Angles {
   final double kZoomDrawerTiltAngle = -12.0;
 
   final double kCircularProgressMiniStartAngle = -90;
-}
-
-class _BorderRadius {
-  final double kZoomDrawerBorderRadius = 24.0;
-  final BorderRadius kSongOptionsBGBorderRadius = const BorderRadius.only(
-      topLeft: Radius.circular(40), topRight: Radius.circular(40));
-  final BorderRadius kToastBGBorderRadius =
-      const BorderRadius.all(Radius.circular(40));
 }
 
 class _Curves {
@@ -149,6 +141,7 @@ class _PrimaryDurations {
 class _SecondaryDurations {
   final Duration kDurationNotInitialised = const Duration(milliseconds: 1);
   final Duration kOneSecond = const Duration(seconds: 1);
+  final Duration kQuick = _PrimaryDurations._quickAnimDuration;
 
   /// For fade out animation of the toast
   final Duration kToastDuration = _PrimaryDurations._quickAnimDuration * 4;
@@ -165,6 +158,27 @@ class _SecondaryDurations {
 
   final Duration soundEqualizerBarsDuration =
       const Duration(milliseconds: 3983);
+
+  final Duration audioProgressDigitalDuration =
+      _PrimaryDurations._quickAnimDuration;
+}
+
+class _Decorations {
+  final double kZoomDrawerBorderRadius = 24.0;
+  final BorderRadius kSongOptionsBGBorderRadius = const BorderRadius.only(
+      topLeft: Radius.circular(40), topRight: Radius.circular(40));
+  final BorderRadius kToastBGBorderRadius =
+      const BorderRadius.all(Radius.circular(40));
+
+  final textFieldDecoration = InputDecoration(
+    enabledBorder: OutlineInputBorder(
+      borderSide:
+          BorderSide(color: _SecondaryColors().kInactiveColor, width: 1.7),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: _SecondaryColors().kBaseColor, width: 2.7),
+    ),
+  );
 }
 
 class _Names {

@@ -48,9 +48,15 @@ class Tune extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Tune',
         theme: ThemeData.dark().copyWith(
-          colorScheme: ColorScheme.fromSwatch(
-              accentColor: AppConstants.colors.secondaryColors.kInactiveColor),
-        ), // Overscroll Glow color for ListView
+            // Overscroll Glow color for ListView
+            colorScheme: ColorScheme.fromSwatch(
+                accentColor:
+                    AppConstants.colors.secondaryColors.kInactiveColor),
+            textSelectionTheme: TextSelectionThemeData(
+              cursorColor: AppConstants.colors.secondaryColors.kBaseColor,
+              selectionHandleColor:
+                  AppConstants.colors.secondaryColors.kBaseColor,
+            )),
         initialRoute: SplashScreen.id,
         routes: {
           /// I have mentioned only the following routes since the other need

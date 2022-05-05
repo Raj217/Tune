@@ -37,7 +37,8 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                     CustomAppBar(
                       showIcons: const [0, 3],
                     ),
-                    Poster()
+                    Provider.of<ScreenStateTracker>(context, listen: false)
+                        .getPoster
                   ],
                 ),
                 const SizedBox(
@@ -46,7 +47,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                 SizedBox(
                   height: screenSize.height * (270 / 756),
                   child: ListView(
-                      children: handler.getAllAudioData['all songs']!
+                      children: handler.getAllAudioData['all']!
                           .asMap()
                           .entries
                           .map((entry) {

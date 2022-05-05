@@ -7,28 +7,29 @@ import 'package:tune/utils/app_constants.dart';
 import 'package:tune/utils/audio/audio_handler_admin.dart';
 import 'package:tune/utils/formatter.dart';
 
-class MusicProgressBarDigital extends StatefulWidget {
+class AudioProgressBarDigital extends StatefulWidget {
   final Duration position;
   final Duration totalDuration;
 
   /// Shows the audio progress in digital i.e currentPosition : totalDuration format
-  const MusicProgressBarDigital(
+  const AudioProgressBarDigital(
       {Key? key, required this.position, required this.totalDuration})
       : super(key: key);
 
   @override
-  State<MusicProgressBarDigital> createState() =>
-      _MusicProgressBarDigitalState();
+  State<AudioProgressBarDigital> createState() =>
+      _AudioProgressBarDigitalState();
 }
 
-class _MusicProgressBarDigitalState extends State<MusicProgressBarDigital> {
+class _AudioProgressBarDigitalState extends State<AudioProgressBarDigital> {
   late Timer timer;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      timer = Timer.periodic(AppConstants.durations.kOneSecond, (timer) {
+      timer = Timer.periodic(
+          AppConstants.durations.audioProgressDigitalDuration, (timer) {
         setState(() {});
       });
     });

@@ -7,7 +7,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:tune/utils/audio/audio_handler_admin.dart';
 import 'package:tune/widgets/animation/toast.dart';
 import 'package:tune/widgets/scroller/value_picker.dart';
-import 'song_info.dart';
+import 'audio_info.dart';
 import 'package:tune/utils/app_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -15,10 +15,12 @@ import 'package:tune/utils/states/screen_state_tracker.dart';
 import 'package:tune/widgets/music/display/audio_player_mini.dart';
 
 class AudioOptions extends StatefulWidget {
-  final MediaItem? mediaItem;
+  /// Index of the mediaItem of the audio to show the options and do changes
+  /// to it
+  final int index;
 
   /// Shows and does the various options available for the audio file
-  const AudioOptions({Key? key, this.mediaItem}) : super(key: key);
+  const AudioOptions({Key? key, required this.index}) : super(key: key);
 
   @override
   State<AudioOptions> createState() => _AudioOptionsState();
@@ -81,18 +83,18 @@ class _AudioOptionsState extends State<AudioOptions> {
   @override
   Widget build(BuildContext context) {
     return Consumer<AudioHandlerAdmin>(builder: (_, handler, __) {
-      for (int i = 0; i <= 30; i++) {
-        // 0.0 to 3.0
+      for (int i = 0; i <= 20; i++) {
+        // 0.0 to 2.0
         values.add(i / 10);
       }
-      if (widget.mediaItem != null &&
-          widget.mediaItem == handler.getAudioHandler.mediaItem.value) {
+      MediaItem mediaItem = handler.getAudioData[widget.index];
+      if (widget.index == handler.getPlayer.currentIndex) {
         canEditSpeedAndPitch = true;
       }
       return Container(
         decoration: BoxDecoration(
             color: AppConstants.colors.tertiaryColors.kSongOptionsBGColor,
-            borderRadius: AppConstants.borderRadius.kSongOptionsBGBorderRadius),
+            borderRadius: AppConstants.decorations.kSongOptionsBGBorderRadius),
         height: double.infinity,
         child: Padding(
           padding: const EdgeInsets.only(top: 50.0),
@@ -158,29 +160,26 @@ class _AudioOptionsState extends State<AudioOptions> {
                     icon: Icons.share_outlined,
                     text: 'share',
                     onTap: () async {
-                      await Share.shareFiles(
-                              [widget.mediaItem?.extras!['path']],
-                              text: widget.mediaItem?.title)
+                      await Share.shareFiles([mediaItem.extras!['path']],
+                              text: mediaItem.title)
                           .then((value) => Navigator.pop(context));
                     }),
                 _button(
                     icon: Icons.info_outline_rounded,
                     text: 'info',
                     onTap: () {
-                      if (widget.mediaItem != null) {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                          return AudioInfo(mediaItem: widget.mediaItem!);
-                        })).then((val) => AppConstants.systemConfigs
-                            .setBottomNavBarColor(AppConstants
-                                .colors.tertiaryColors.kSongOptionsBGColor));
-                      }
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                        return AudioInfo(index: widget.index);
+                      })).then((val) => AppConstants.systemConfigs
+                          .setBottomNavBarColor(AppConstants
+                              .colors.tertiaryColors.kSongOptionsBGColor));
                     }),
                 _button(
                     icon: Icons.playlist_remove,
                     text: 'remove from playlist',
                     onTap: () async {
-                      await handler.removeAudio(mediaItem: widget.mediaItem);
+                      await handler.removeAudio(mediaItem: mediaItem);
                       if (handler.getNumberOfAudios == 0) {
                         Provider.of<ScreenStateTracker>(context, listen: false)
                             .setAudioPlayerMini = AudioPlayerMini();

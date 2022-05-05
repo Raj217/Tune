@@ -28,6 +28,7 @@ dependencies:
   flutter_zoom_drawer: ^3.0.1
   share_plus: ^4.0.4
   sentry_flutter: ^6.5.1
+  audiotagger: ^2.2.1
 
 dev_dependencies:
   flutter_test:

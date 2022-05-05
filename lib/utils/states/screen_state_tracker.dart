@@ -10,6 +10,8 @@ import 'package:tune/utils/app_constants.dart';
 import 'package:tune/widgets/music/display/audio_player_mini.dart';
 import 'package:tune/widgets/music/display/playlist_viewer_item.dart';
 
+import '../../widgets/img/poster.dart';
+
 class ScreenStateTracker extends ChangeNotifier {
   /// Index of Screen
   int _screenIndex = 1;
@@ -39,6 +41,8 @@ class ScreenStateTracker extends ChangeNotifier {
   /// hides instead of throwing error of not getting audio title, etc.
   bool _shouldShowAudioPlayerMini = true;
 
+  Poster poster = Poster();
+
   /// Toggle between menu screen and main screen
   void toggleMenu() {
     _zoomDrawerController.toggle?.call();
@@ -64,6 +68,8 @@ class ScreenStateTracker extends ChangeNotifier {
 
   String get getRandomAvatarPath => AppConstants.paths.kAvatarPaths[
       AppConstants.paths.kAvatarPaths.keys.toList()[_avatarIndex]]!;
+
+  Poster get getPoster => poster;
 
   // -------------------------------- Setter methods --------------------------------
   set setScreenIndex(int index) {

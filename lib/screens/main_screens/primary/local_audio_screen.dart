@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_glow/flutter_glow.dart';
 import 'package:provider/provider.dart';
 
 import 'package:tune/utils/audio/audio_handler_admin.dart';
@@ -33,6 +34,17 @@ class _LocalAudioScreenState extends State<LocalAudioScreen> {
             CustomAppBar(),
             Column(
               children: [
+                GlowButton(
+                  child: Text('Delete cookies',
+                      style: AppConstants.textStyles.kAudioTitleTextStyle
+                          .copyWith(
+                              color: AppConstants
+                                  .colors.secondaryColors.kBackgroundColor)),
+                  color: AppConstants.colors.secondaryColors.kBaseColor,
+                  onPressed: () async {
+                    await FileHandler.delete('all.json');
+                  },
+                ),
                 Padding(
                   padding: EdgeInsets.only(
                       left: screenSize.width - screenSize.height * 0.07 - 5),
