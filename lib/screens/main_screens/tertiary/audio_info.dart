@@ -76,7 +76,7 @@ class AudioInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     MediaItem mediaItem = Provider.of<AudioHandlerAdmin>(context, listen: false)
-        .getAudioData[index];
+        .getCurrentAudioData[index];
     return VerticalScroll(
       screenSize: MediaQuery.of(context).size,
       child: Padding(

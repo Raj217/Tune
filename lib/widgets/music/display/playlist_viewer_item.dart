@@ -38,7 +38,7 @@ class _PlaylistViewerItemState extends State<PlaylistViewerItem> {
             ? AppConstants.colors.secondaryColors.kBaseColor
             : AppConstants.colors.secondaryColors.kInactiveColor);
     MediaItem mediaItem = Provider.of<AudioHandlerAdmin>(context, listen: false)
-        .getAudioData[widget.index];
+        .getCurrentAudioData[widget.index];
     return InkWell(
       onTap: () async {
         await Future.delayed(AppConstants.durations.kQuick);

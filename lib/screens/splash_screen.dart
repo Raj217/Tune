@@ -37,7 +37,7 @@ class _SplashScreenState extends State<SplashScreen>
     AppConstants.systemConfigs.setBottomNavBarColor(
         AppConstants.colors.secondaryColors.kBackgroundColor);
 
-    Provider.of<AudioHandlerAdmin>(context, listen: false).readPlaylist()
+    Provider.of<AudioHandlerAdmin>(context, listen: false).readData()
 
         /// Read the initial Data
         .then((_) {

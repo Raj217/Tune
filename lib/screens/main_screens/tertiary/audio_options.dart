@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:audio_service/audio_service.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:tune/screens/main_screens/tertiary/add_to_playlist.dart';
 
 import 'package:tune/utils/audio/audio_handler_admin.dart';
 import 'package:tune/widgets/animation/toast.dart';
@@ -87,7 +88,7 @@ class _AudioOptionsState extends State<AudioOptions> {
         // 0.0 to 2.0
         values.add(i / 10);
       }
-      MediaItem mediaItem = handler.getAudioData[widget.index];
+      MediaItem mediaItem = handler.getCurrentAudioData[widget.index];
       if (widget.index == handler.getPlayer.currentIndex) {
         canEditSpeedAndPitch = true;
       }
@@ -176,15 +177,31 @@ class _AudioOptionsState extends State<AudioOptions> {
                               .colors.tertiaryColors.kSongOptionsBGColor));
                     }),
                 _button(
-                    icon: Icons.playlist_remove,
-                    text: 'remove from playlist',
+                    icon: Icons.playlist_add,
+                    text: 'add to playlist',
                     onTap: () async {
-                      await handler.removeAudio(mediaItem: mediaItem);
+                      addToPlaylist(
+                              context: context,
+                              currentAudioPath: mediaItem.extras!['path'])
+                          .then((_) => AppConstants.systemConfigs
+                              .setBottomNavBarColor(AppConstants
+                                  .colors.tertiaryColors.kSongOptionsBGColor));
+                    }),
+                _button(
+                    svgName: icons.delete,
+                    text: 'delete',
+                    onTap: () async {
+                      /*
+                      TODO: Need some modifications
+                      await handler.removeAudio(
+                          mediaItem:
+                              mediaItem);
                       if (handler.getNumberOfAudios == 0) {
                         Provider.of<ScreenStateTracker>(context, listen: false)
                             .setAudioPlayerMini = AudioPlayerMini();
                       }
                       Navigator.pop(context);
+                      */
                     }),
               ],
             ),

@@ -135,17 +135,17 @@ class _EditSongInfoState extends State<EditSongInfo> {
               ),
               _editItem(
                   title: 'Song',
-                  value: handler.getAudioData[widget.index].title,
+                  value: handler.getCurrentAudioData[widget.index].title,
                   controller: audioTitleController),
               _editItem(
                   title: 'Artist',
-                  value: handler.getAudioData[widget.index].artist ??
+                  value: handler.getCurrentAudioData[widget.index].artist ??
                       'Unknown Artist',
                   controller: audioArtistController),
               _editItem(
                   title: 'Playlist',
-                  value: handler.getAudioData[widget.index].extras?['playlist']
-                          [0] ??
+                  value: handler.getCurrentAudioData[widget.index]
+                          .extras?['playlist'][0] ??
                       'all',
                   controller:
                       audioPlaylistController), // TODO: Convert it to a value selector and adder

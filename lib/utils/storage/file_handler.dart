@@ -12,10 +12,15 @@ class FileHandler {
     'wav',
   ];
 
-  static Future<String> getFilePath(String fileName) async {
+  static Future<String> _getFilePath(String fileName) async {
     Directory directory = await getApplicationDocumentsDirectory();
     String applicationDocumentPath = directory.path;
     return '$applicationDocumentPath/$fileName';
+  }
+
+  static Future<bool> fileExists(String fileName) async {
+    File file = File(await _getFilePath(fileName));
+    return await file.exists();
   }
 
   static Future<double> getFileSize(
@@ -24,7 +29,7 @@ class FileHandler {
     /// In case of fileName, the file will be assumed to be in the application documents directory
     File file;
     if (fileName != null) {
-      file = File(await getFilePath(fileName));
+      file = File(await _getFilePath(fileName));
     } else {
       file = File(filePath!);
     }
@@ -37,7 +42,7 @@ class FileHandler {
   }
 
   static Future<void> delete(String fileName) async {
-    File file = File(await getFilePath(fileName));
+    File file = File(await _getFilePath(fileName));
     if (await file.exists()) {
       file.delete();
     }
@@ -56,12 +61,12 @@ class FileHandler {
     return file?.paths;
   }
 
-  static Future<String?> read({required String fileName}) async {
-    File file = File(await getFilePath(fileName));
+  static Future<String> read({required String fileName}) async {
+    File file = File(await _getFilePath(fileName));
     if (await file.exists()) {
       return file.readAsString();
     }
-    return null;
+    return '[]';
   }
 
   static Future<String> save(
@@ -69,7 +74,7 @@ class FileHandler {
       String? fileContents,
       required String fileName}) async {
     /// Either fileBytes or files should be supplied
-    String filePath = await getFilePath(fileName);
+    String filePath = await _getFilePath(fileName);
 
     File file = File(filePath);
 

@@ -33,10 +33,10 @@ class _LocalAudioScreenState extends State<LocalAudioScreen> {
           children: [
             CustomAppBar(),
             Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Padding(
-                  padding: EdgeInsets.only(
-                      left: screenSize.width - screenSize.height * 0.07 - 5),
+                  padding: const EdgeInsets.only(right: 10),
                   child: GestureDetector(
                     onTap: () async {
                       FileHandler.pick().then((filePaths) async {

@@ -47,7 +47,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                 SizedBox(
                   height: screenSize.height * (270 / 756),
                   child: ListView(
-                      children: handler.getAllAudioData['all']!
+                      children: handler.getCurrentAudioData
                           .asMap()
                           .entries
                           .map((entry) {

@@ -11,7 +11,6 @@ import 'package:tune/utils/audio/audio_handler_admin.dart';
 import 'package:tune/utils/states/screen_state_tracker.dart';
 import 'package:tune/widgets/music/progress/audio_progress_bar.dart';
 import 'package:tune/widgets/music/progress/audio_progress_digital.dart';
-import 'package:tune/widgets/img/poster.dart';
 import 'package:tune/widgets/buttons/extended_button.dart';
 import 'package:tune/widgets/scroller/scrolling_text.dart';
 
@@ -69,6 +68,11 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
         backgroundColor: AppConstants.colors.secondaryColors.kBackgroundColor,
         body: Consumer<AudioHandlerAdmin>(
           builder: (context, handler, _) {
+            if (handler.isFavorite(
+                handler.getAudioHandler.mediaItem.value?.extras!['path'])) {
+              favorite =
+                  true; // TODO: BUG, when the song changes, if new song is favorite, it doesn't update
+            }
             return SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -87,7 +91,7 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
                                     listen: false)
                                 .getPoster,
                           ),
-                          AudioProgressBar(),
+                          const AudioProgressBar(),
                         ],
                       ),
                       ExtendedButton(
@@ -164,14 +168,29 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
                                     onLoaded: (controller) {
                                   _favoriteIconController.duration =
                                       controller.duration;
+                                  if (favorite) {
+                                    _favoriteIconController.forward();
+                                  }
                                 }),
-                                onTap: () {
+                                onTap: () async {
                                   // TODO: Implement the favorite playlist
                                   setState(() {
                                     favorite = !favorite;
                                     _favoriteIconController.forward().then(
                                         (value) =>
                                             _favoriteIconController.reset());
+                                    String path = handler.getAudioHandler
+                                        .mediaItem.value?.extras!['path'];
+                                    String playlistName = 'favorite';
+                                    if (favorite) {
+                                      handler.addToPlaylist(
+                                          path: path,
+                                          playlistName: playlistName);
+                                    } else {
+                                      handler.removeFromPlaylist(
+                                          path: path,
+                                          playlistName: playlistName);
+                                    }
                                   });
                                 }),
                             ExtendedButton(
