@@ -48,17 +48,30 @@ class FileHandler {
     }
   }
 
-  static Future<List<String?>?> pick() async {
-    // TODO: Add for folder pick
-    /// Allow user to pick files using a file browser
-    FilePickerResult? file = await FilePicker.platform.pickFiles(
-      type: FileType.audio,
-      allowMultiple: true,
-      dialogTitle: 'Select a song',
-      withData: true,
-    );
+  /// [file] : is the type of file to pick a file or a folder
+  static Future<List<String?>?> pick({file = true}) async {
+    if (file) {
+      /// Allow user to pick files using a file browser
+      FilePickerResult? file = await FilePicker.platform.pickFiles(
+        type: FileType.audio,
+        allowMultiple: true,
+        dialogTitle: 'Select a song',
+        withData: true,
+      );
 
-    return file?.paths;
+      return file?.paths;
+    } else {
+      String? folder = await FilePicker.platform.getDirectoryPath();
+      if (folder != null) {
+        Directory dir = Directory(folder);
+        return dir
+            .listSync() // TODO: Add to settings for recursion
+            .map((FileSystemEntity file) => file.path)
+            .where((element) => supportedFileFormats
+                .contains(element.substring(element.length - 3)))
+            .toList();
+      }
+    }
   }
 
   static Future<String> read({required String fileName}) async {

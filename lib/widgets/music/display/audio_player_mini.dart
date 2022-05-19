@@ -74,9 +74,8 @@ class _AudioPlayerMiniState extends State<AudioPlayerMini>
                     svgName: icons.arrow,
                     angle: pi,
                     extendedRadius: 40,
-                    svgColor:
-                        AppConstants.colors.secondaryColors.kBackgroundColor,
-                    svgHeight: AppConstants.sizes.kDefaultIconHeight / 1.2,
+                    color: AppConstants.colors.secondaryColors.kBackgroundColor,
+                    height: AppConstants.sizes.kDefaultIconHeight / 1.2,
                   ),
                   ScrollingText(
                     text: handler.getTitle == 'Untitled Song'
@@ -98,8 +97,8 @@ class _AudioPlayerMiniState extends State<AudioPlayerMini>
                         extendedRadius: 42,
                         svgName:
                             handler.getIsPlaying ? icons.pause : icons.play,
-                        svgHeight: 18,
-                        svgColor: AppConstants
+                        height: 18,
+                        color: AppConstants
                             .colors.secondaryColors.kBackgroundColor,
                         onTap: handler.getIsPlaying
                             ? () => handler.getAudioHandler.pause()

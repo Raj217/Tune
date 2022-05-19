@@ -196,8 +196,8 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
                             ExtendedButton(
                                 extendedRadius: 70,
                                 svgName: icons.changeSong,
-                                svgHeight: 25,
-                                svgColor: AppConstants
+                                height: 25,
+                                color: AppConstants
                                     .colors.secondaryColors.kBaseColor,
                                 onTap: () {
                                   setState(() {
@@ -209,8 +209,8 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
                                 extendedBGColor: AppConstants
                                     .colors.secondaryColors.kBaseColor,
                                 svgName: (playing ? icons.pause : icons.play),
-                                svgHeight: 25,
-                                svgColor: AppConstants
+                                height: 25,
+                                color: AppConstants
                                     .colors.secondaryColors.kBackgroundColor,
                                 onTap: () {
                                   playing
@@ -221,8 +221,8 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
                                 extendedRadius: 70,
                                 angle: pi,
                                 svgName: icons.changeSong,
-                                svgHeight: 25,
-                                svgColor: AppConstants
+                                height: 25,
+                                color: AppConstants
                                     .colors.secondaryColors.kBaseColor,
                                 onTap: () {
                                   setState(() {
@@ -238,7 +238,7 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
                                             PlayMode.repeatThis
                                         ? icons.repeatThisSong
                                         : icons.shuffle),
-                                svgHeight: 16,
+                                height: 16,
                                 onTap: () {
                                   setState(() {
                                     // TODO: Implement it
@@ -251,7 +251,7 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen>
                   SizedBox(height: screenSize.height * 0.1),
                   ExtendedButton(
                       svgName: icons.arrow,
-                      svgColor: AppConstants.colors.secondaryColors.kBaseColor,
+                      color: AppConstants.colors.secondaryColors.kBaseColor,
                       onTap: () {
                         Navigator.pop(context);
                       }),

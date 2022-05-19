@@ -24,29 +24,12 @@ class CircularProgressMini extends StatefulWidget {
 }
 
 class _CircularProgressMiniState extends State<CircularProgressMini> {
-  late Timer timer;
-  @override
-  void initState() {
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      timer = Timer.periodic(AppConstants.durations.kOneSecond, (timer) {
-        setState(() {});
-      });
-    });
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    timer.cancel();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return SleekCircularSlider(
       min: widget._min.inMilliseconds.toDouble(),
       max: widget._max.inMilliseconds.toDouble(),
-      initialValue: Provider.of<AudioHandlerAdmin>(context, listen: false)
+      initialValue: Provider.of<AudioHandlerAdmin>(context)
           .getPosition
           .inMilliseconds
           .toDouble(),

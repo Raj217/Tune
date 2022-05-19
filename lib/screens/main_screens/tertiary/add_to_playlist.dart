@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_glow/flutter_glow.dart';
 import 'package:provider/provider.dart';
+import 'package:tune/screens/main_screens/tertiary/create_new_playlist_screen.dart';
 import 'package:tune/utils/app_constants.dart';
 import 'package:tune/utils/audio/audio_handler_admin.dart';
 
@@ -87,8 +88,13 @@ class _AddToPlaylistState extends State<_AddToPlaylist> {
     return Consumer<AudioHandlerAdmin>(
       builder: (context, handler, _) {
         List<Padding> children = [];
-        children
-            .add(_button(icon: Icons.add, text: 'New Playlist', onTap: (_) {}));
+        children.add(_button(
+            icon: Icons.add,
+            text: 'New Playlist',
+            onTap: (_) {
+              createNewPlaylistScreen(
+                  context: context, path: widget.currentAudioPath);
+            }));
         for (String playlistName in handler.getAllPlaylists.keys) {
           children.add(
             _button(

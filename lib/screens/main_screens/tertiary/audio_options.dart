@@ -7,13 +7,12 @@ import 'package:tune/screens/main_screens/tertiary/add_to_playlist.dart';
 
 import 'package:tune/utils/audio/audio_handler_admin.dart';
 import 'package:tune/widgets/animation/toast.dart';
+import 'package:tune/widgets/buttons/extended_button.dart';
 import 'package:tune/widgets/scroller/value_picker.dart';
 import 'audio_info.dart';
 import 'package:tune/utils/app_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:tune/utils/states/screen_state_tracker.dart';
-import 'package:tune/widgets/music/display/audio_player_mini.dart';
 
 class AudioOptions extends StatefulWidget {
   /// Index of the mediaItem of the audio to show the options and do changes
@@ -88,7 +87,7 @@ class _AudioOptionsState extends State<AudioOptions> {
         // 0.0 to 2.0
         values.add(i / 10);
       }
-      MediaItem mediaItem = handler.getCurrentAudioData[widget.index];
+      MediaItem mediaItem = handler.getCurrentPlaylistAudioData[widget.index];
       if (widget.index == handler.getPlayer.currentIndex) {
         canEditSpeedAndPitch = true;
       }

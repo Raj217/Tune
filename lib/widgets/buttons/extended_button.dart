@@ -10,20 +10,33 @@ class ExtendedButton extends StatelessWidget {
   /// Color of the BG, by default [Colors.transparent]
   final Color extendedBGColor;
 
+  /// Precedence : svgPath > svgName > icon > child
+  final IconData? icon;
+
   /// Svg file name of the icon
+  ///
+  ///  Precedence : svgPath > svgName > icon > child
   final icons? svgName;
 
-  double? svgHeight;
-  double? svgWidth;
+  /// Precedence: width > height
+  double? height;
 
+  /// Precedence: width > height
+  double? width;
+
+  /// If svgPath is provided the original color of the svg will be used
+  ///
+  ///  Precedence : svgPath > svgName > icon > child
   final String? svgPath;
 
-  final Color _svgColor;
+  final Color _color;
 
   /// Angle of rotation of the Icon
   final double angle;
 
   /// In case a Svg icon is not used and something else is used
+  ///
+  /// Precedence : svgPath > svgName > icon > child
   final Widget? child;
 
   /// When tapped on the icon or extended region
@@ -42,31 +55,33 @@ class ExtendedButton extends StatelessWidget {
       this.extendedBGColor = Colors.transparent,
       this.svgName,
       this.svgPath,
-      this.svgHeight,
-      this.svgWidth,
-      Color? svgColor,
+      this.icon,
+      this.height,
+      this.width,
+      Color? color,
       this.angle = 0,
       this.child,
       this.onTap,
+      BorderRadius? borderRadius,
       this.takeDefaultAsWidth = false})
-      : assert(svgName != null || svgPath != null || child != null,
-            'either svgName/Path/child must be provided'),
+      : assert(
+            svgName != null || svgPath != null || child != null || icon != null,
+            'either svgName/Path/child/icon must be provided'),
         _extendedRadius =
             extendedRadius ?? AppConstants.sizes.kDefaultExtendedButtonRadius,
-        _svgColor =
-            svgColor ?? AppConstants.colors.tertiaryColors.kDefaultIconsColor,
+        _color = color ?? AppConstants.colors.tertiaryColors.kDefaultIconsColor,
         super(key: key) {
-    if (svgHeight == null && svgWidth == null) {
+    if (height == null && width == null) {
       if (takeDefaultAsWidth == false) {
-        svgHeight = AppConstants.sizes.kDefaultIconHeight;
+        height = AppConstants.sizes.kDefaultIconHeight;
       } else {
-        svgWidth = AppConstants.sizes.kDefaultIconWidth;
+        width = AppConstants.sizes.kDefaultIconWidth;
       }
     }
-    if (svgHeight != null && _extendedRadius < svgHeight!) {
-      extendedRadius = svgHeight! + 10;
-    } else if (svgWidth != null && _extendedRadius < svgWidth!) {
-      extendedRadius = svgWidth! + 10;
+    if (height != null && _extendedRadius < height!) {
+      extendedRadius = height! + 10;
+    } else if (width != null && _extendedRadius < width!) {
+      extendedRadius = width! + 10;
     }
   }
 
@@ -85,12 +100,14 @@ class ExtendedButton extends StatelessWidget {
                 size: _extendedRadius,
               ),
               child ??
-                  SvgPicture.asset(
-                    svgPath ?? AppConstants.paths.kIconPaths[svgName]!,
-                    height: svgHeight,
-                    width: svgWidth,
-                    color: svgPath == null ? _svgColor : null,
-                  ),
+                  (icon != null
+                      ? Icon(icon, size: width ?? height, color: _color)
+                      : SvgPicture.asset(
+                          svgPath ?? AppConstants.paths.kIconPaths[svgName]!,
+                          height: height,
+                          width: width,
+                          color: svgPath == null ? _color : null,
+                        ))
             ],
           ),
         ),

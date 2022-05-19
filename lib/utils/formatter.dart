@@ -65,7 +65,7 @@ class Formatter {
     }
   }
 
-  static Size textSize(String text, TextStyle style) {
+  static Size textSize(String? text, TextStyle? style) {
     /// Returns the size of the Text widget
     final TextPainter textPainter = TextPainter(
         text: TextSpan(text: text, style: style),

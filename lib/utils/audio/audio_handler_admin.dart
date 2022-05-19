@@ -1,5 +1,7 @@
 /// The base file for handling all audio related functions
 
+// TODO: Make sure that all contains all the song always
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
@@ -154,6 +156,11 @@ class AudioHandlerAdmin extends ChangeNotifier {
         _currentPlaylistMediaItems.add(await getMediaData(path));
         _updateData(path: path, playlistName: playlistName);
         await saveData();
+        if (_audioHandler.mediaItem.value?.title == null &&
+            _player.currentIndex != null) {
+          await _audioHandler.updateMediaItem(
+              _currentPlaylistMediaItems[_player.currentIndex!]);
+        }
         notifyListeners();
         return;
       }
@@ -164,25 +171,6 @@ class AudioHandlerAdmin extends ChangeNotifier {
       notifyListeners();
       return;
     }
-    /*
-    MediaItem mediaItem = await getMediaData(path);
-    if (!(_audioData[playlistName]?.contains(mediaItem) ?? true)) {
-      await _currentPlaylist
-          .add(AudioSource.uri(Uri.file(path), tag: tag ?? path));
-      _audioData[playlistName]?.add(mediaItem);
-      savePlaylist(
-          playlistLinks: _audioData[playlistName]!
-              .map<String>((mediaItem) => mediaItem.extras!['path'])
-              .toList(),
-          playlistName: '$playlistName.json');
-      notifyListeners();
-      if (_audioHandler.mediaItem.value?.title == null) { TODO: What is this?
-        await _audioHandler
-            .updateMediaItem(_audioData[playlistName]![_player.currentIndex!]);
-        notifyListeners();
-      }
-      return;
-    }*/
   }
 
   void _updateData({required String path, required String playlistName}) {
@@ -220,7 +208,22 @@ class AudioHandlerAdmin extends ChangeNotifier {
   }
 
   void addNewPlaylist({required String playlistName, List<String>? paths}) {
-    _playlists[playlistName] = paths ?? [];
+    if (!_playlists.containsKey(playlistName)) {
+      _playlists[playlistName] = paths ?? [];
+      for (String path in paths ?? []) {
+        if (!_data['audios'].containsKey(path)) {
+          _data['audios'][path] = {
+            'playlists': [playlistName]
+          };
+        } else {
+          if (!_data['audios'][path]['playlists'].contains(playlistName)) {
+            _data['audios'][path]['playlists'].add(playlistName);
+          }
+        }
+      }
+    }
+    saveData();
+    notifyListeners();
   }
 
   Future<void> deletePlaylistStorage({required String playlistName}) async {
@@ -229,12 +232,14 @@ class AudioHandlerAdmin extends ChangeNotifier {
 
   Future<void> readData() async {
     String data = await FileHandler.read(fileName: fileStorageName);
-    dynamic decodedData = await json.decode(data);
 
-    _data['userData'] = decodedData['userData'];
-    for (String path in decodedData['audios'].keys) {
-      for (String pName in decodedData['audios'][path]['playlists']) {
-        await addAudio(path: path, playlistName: pName);
+    if (data != '[]') {
+      dynamic decodedData = await json.decode(data);
+      _data['userData'] = decodedData['userData'];
+      for (String path in decodedData['audios'].keys) {
+        for (String pName in decodedData['audios'][path]['playlists']) {
+          await addAudio(path: path, playlistName: pName);
+        }
       }
     }
     return;
@@ -457,12 +462,13 @@ class AudioHandlerAdmin extends ChangeNotifier {
       _player.duration ?? AppConstants.durations.kDurationNotInitialised;
   Duration get getPosition => _player.position;
   bool get getIsPlaying => _player.playing;
-  ConcatenatingAudioSource get getPlaylist => _currentPlaylist;
-  List<MediaItem> get getCurrentAudioData => _currentPlaylistMediaItems;
+  ConcatenatingAudioSource get getCurrentPlaylist => _currentPlaylist;
+  List<MediaItem> get getCurrentPlaylistAudioData => _currentPlaylistMediaItems;
   int get getNumberOfAudios => _currentPlaylistMediaItems.length;
   int get getCurrentlyPlayingAudioIndex => _player.currentIndex ?? -1;
   bool get getIsUpdating => _isUpdating;
   Map<String, List<String>> get getAllPlaylists => _playlists;
+  String get getCurrentPlaylistName => _currentPlaylistName;
 }
 
 class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {

@@ -8,7 +8,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 /// Available animations
-enum animations { favorite, listeningToMusic, soundEqualizerBars, waveFlow }
+enum animations {
+  favorite,
+  listeningToMusic,
+  soundEqualizerBars,
+  waveFlow,
+  loading
+}
 
 /// Available avatars
 enum avatars { female1, female2, female3, male1, male2, male3 }
@@ -171,14 +177,16 @@ class _Decorations {
       const BorderRadius.all(Radius.circular(40));
 
   final textFieldDecoration = InputDecoration(
-    enabledBorder: OutlineInputBorder(
-      borderSide:
-          BorderSide(color: _SecondaryColors().kInactiveColor, width: 1.7),
-    ),
-    focusedBorder: OutlineInputBorder(
-      borderSide: BorderSide(color: _SecondaryColors().kBaseColor, width: 2.7),
-    ),
-  );
+      isDense: true,
+      enabledBorder: UnderlineInputBorder(
+        borderSide: BorderSide(
+            color: AppConstants.colors.secondaryColors.kInactiveColor,
+            width: 1.3),
+      ),
+      focusedBorder: UnderlineInputBorder(
+        borderSide: BorderSide(
+            color: AppConstants.colors.secondaryColors.kBaseColor, width: 2),
+      ));
 }
 
 class _Names {
@@ -201,6 +209,7 @@ class _Paths {
     animations.soundEqualizerBars:
         '$_kLottieAnimationPath/sound-equalizer-bars.json',
     animations.waveFlow: '$_kLottieAnimationPath/wave-flow.json',
+    animations.loading: '$_kLottieAnimationPath/loading_brown.json',
   };
   final Map<avatars, String> kAvatarPaths = {
     avatars.female1: '$_kAvatarPath/Female 1.svg',

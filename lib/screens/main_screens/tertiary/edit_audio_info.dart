@@ -44,19 +44,7 @@ class _EditSongInfoState extends State<EditSongInfo> {
                 style: AppConstants.textStyles.kAudioTitleTextStyle
                     .copyWith(fontSize: 12),
                 cursorColor: AppConstants.colors.secondaryColors.kBaseColor,
-                decoration: InputDecoration(
-                    isDense: true,
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                          color: AppConstants
-                              .colors.secondaryColors.kInactiveColor,
-                          width: 1.3),
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                          color: AppConstants.colors.secondaryColors.kBaseColor,
-                          width: 2),
-                    ))),
+                decoration: AppConstants.decorations.textFieldDecoration),
           ),
         ],
       ),
@@ -135,16 +123,18 @@ class _EditSongInfoState extends State<EditSongInfo> {
               ),
               _editItem(
                   title: 'Song',
-                  value: handler.getCurrentAudioData[widget.index].title,
+                  value:
+                      handler.getCurrentPlaylistAudioData[widget.index].title,
                   controller: audioTitleController),
               _editItem(
                   title: 'Artist',
-                  value: handler.getCurrentAudioData[widget.index].artist ??
+                  value: handler
+                          .getCurrentPlaylistAudioData[widget.index].artist ??
                       'Unknown Artist',
                   controller: audioArtistController),
               _editItem(
                   title: 'Playlist',
-                  value: handler.getCurrentAudioData[widget.index]
+                  value: handler.getCurrentPlaylistAudioData[widget.index]
                           .extras?['playlist'][0] ??
                       'all',
                   controller:

@@ -36,7 +36,7 @@ class _MenuScreenState extends State<MenuScreen> {
           ),
           Center(
             child: ExtendedButton(
-              svgHeight: AppConstants.sizes.kAvatarHeight,
+              height: AppConstants.sizes.kAvatarHeight,
               svgPath: Provider.of<ScreenStateTracker>(context)
                   .getRandomAvatarPath, // TODO: Store this data in local storage and do not change everytime the app launches
               extendedBGColor: AppConstants.colors.secondaryColors.kBaseColor,

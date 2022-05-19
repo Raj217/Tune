@@ -38,7 +38,7 @@ class _PlaylistViewerItemState extends State<PlaylistViewerItem> {
             ? AppConstants.colors.secondaryColors.kBaseColor
             : AppConstants.colors.secondaryColors.kInactiveColor);
     MediaItem mediaItem = Provider.of<AudioHandlerAdmin>(context, listen: false)
-        .getCurrentAudioData[widget.index];
+        .getCurrentPlaylistAudioData[widget.index];
     return InkWell(
       onTap: () async {
         await Future.delayed(AppConstants.durations.kQuick);
@@ -68,9 +68,9 @@ class _PlaylistViewerItemState extends State<PlaylistViewerItem> {
                   ExtendedButton(
                     extendedRadius: 25,
                     svgName: icons.appOptions,
-                    svgHeight: 4,
+                    height: 4,
                     angle: pi / 2,
-                    svgColor: color,
+                    color: color,
                     onTap: () {
                       showModalBottomSheet(
                               backgroundColor: Colors.transparent,

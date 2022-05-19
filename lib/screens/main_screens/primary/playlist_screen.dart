@@ -2,7 +2,9 @@
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_glow/flutter_glow.dart';
 import 'package:provider/provider.dart';
+import 'package:tune/utils/app_constants.dart';
 
 import 'package:tune/utils/audio/audio_handler_admin.dart';
 import 'package:tune/utils/states/screen_state_tracker.dart';
@@ -19,6 +21,7 @@ class PlaylistScreen extends StatefulWidget {
   State<PlaylistScreen> createState() => _PlaylistScreenState();
 }
 
+//TODO: Extract the playlist viewer
 class _PlaylistScreenState extends State<PlaylistScreen> {
   @override
   Widget build(BuildContext context) {
@@ -44,10 +47,17 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                 const SizedBox(
                   height: 15,
                 ),
+                GlowText(
+                  handler.getCurrentPlaylistName,
+                  style: AppConstants.textStyles.kAudioTitleTextStyle,
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
                 SizedBox(
-                  height: screenSize.height * (270 / 756),
+                  height: screenSize.height * (235 / 756),
                   child: ListView(
-                      children: handler.getCurrentAudioData
+                      children: handler.getCurrentPlaylistAudioData
                           .asMap()
                           .entries
                           .map((entry) {

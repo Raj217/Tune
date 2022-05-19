@@ -88,18 +88,16 @@ class _AudioProgressBarState extends State<AudioProgressBar>
             position = val;
           },
           onChangeStart: (val) {
-            handler.getAudioHandler.pause();
+            userChangingBar = true;
             position = val;
             _opacityController.value =
                 1; // Make the changed duration onChange viewer visible as soon as the user starts changing the value
-            userChangingBar = true;
           },
           onChangeEnd: (val) async {
             _opacityController.reverse(
                 from:
                     1); // Animate the fading effect of duration onChange viewer
-            await handler.getAudioHandler
-                .seek(Duration(milliseconds: val.toInt()));
+            handler.getAudioHandler.seek(Duration(milliseconds: val.toInt()));
 
             handler.getAudioHandler.play();
             userChangingBar = false;
