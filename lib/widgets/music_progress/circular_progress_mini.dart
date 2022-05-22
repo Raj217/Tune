@@ -23,7 +23,24 @@ class CircularProgressMini extends StatefulWidget {
   State<CircularProgressMini> createState() => _CircularProgressMiniState();
 }
 
-class _CircularProgressMiniState extends State<CircularProgressMini> {
+class _CircularProgressMiniState extends State<CircularProgressMini>
+    with TickerProviderStateMixin {
+  Timer? timer;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    timer = Timer.periodic(AppConstants.durations.kOneSecond, (timer) {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return SleekCircularSlider(

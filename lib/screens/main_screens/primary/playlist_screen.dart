@@ -10,8 +10,10 @@ import 'package:tune/utils/audio/audio_handler_admin.dart';
 import 'package:tune/utils/states/screen_state_tracker.dart';
 import 'package:tune/widgets/app_bar.dart';
 import 'package:tune/widgets/img/poster.dart';
-import 'package:tune/widgets/music/display/playlist_viewer_item.dart';
+import 'package:tune/widgets/display/playlist_viewer_item.dart';
 import 'package:tune/widgets/scroller/vertical_scroll.dart';
+
+import '../../../widgets/display/list_viewer.dart';
 
 class PlaylistScreen extends StatefulWidget {
   const PlaylistScreen({Key? key}) : super(key: key);
@@ -54,22 +56,10 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                 const SizedBox(
                   height: 15,
                 ),
-                SizedBox(
+                ListViewer(
                   height: screenSize.height * (235 / 756),
-                  child: ListView(
-                      children: handler.getCurrentPlaylistAudioData
-                          .asMap()
-                          .entries
-                          .map((entry) {
-                    int index = entry.key;
-                    MediaItem mediaItem = entry.value;
-
-                    return PlaylistViewerItem(
-                      index: index,
-                      isCurrentlyPlaying:
-                          mediaItem == handler.getAudioHandler.mediaItem.value,
-                    );
-                  }).toList()),
+                  audios: handler.getCurrentPlaylistMediaItems,
+                  currentlyPlaying: handler.getAudioHandler.mediaItem.value,
                 ),
               ],
             ),

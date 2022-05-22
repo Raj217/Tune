@@ -8,7 +8,7 @@ import 'package:tune/utils/audio/audio_handler_admin.dart';
 import 'package:tune/utils/states/screen_state_tracker.dart';
 import 'package:tune/widgets/animation/audio_visualizer.dart';
 import 'package:tune/widgets/animation/liquid_animation.dart';
-import 'package:tune/widgets/music/progress/circular_progress_mini.dart';
+import 'package:tune/widgets/music_progress/circular_progress_mini.dart';
 import '../../../screens/main_screens/secondary/audio_player_screen.dart';
 import 'package:tune/widgets/buttons/extended_button.dart';
 import 'package:tune/widgets/scroller/scrolling_text.dart';
@@ -44,6 +44,30 @@ class _AudioPlayerMiniState extends State<AudioPlayerMini>
     with TickerProviderStateMixin {
   /// Width of the text after which text scrolls automatically
   late double textScrollWidth;
+  late AnimationController _lottiePlayPauseController;
+  bool isPlaying = false;
+
+  @override
+  void initState() {
+    _lottiePlayPauseController = AnimationController(vsync: this)
+      ..addListener(() {
+        if (!Provider.of<AudioHandlerAdmin>(context, listen: false)
+                    .getIsPlaying ==
+                true &&
+            _lottiePlayPauseController.value >= 0.52) {
+          // Paused
+          _lottiePlayPauseController.stop();
+        }
+      });
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _lottiePlayPauseController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,14 +119,32 @@ class _AudioPlayerMiniState extends State<AudioPlayerMini>
                       ),
                       ExtendedButton(
                         extendedRadius: 42,
-                        svgName:
-                            handler.getIsPlaying ? icons.pause : icons.play,
-                        height: 18,
-                        color: AppConstants
-                            .colors.secondaryColors.kBackgroundColor,
-                        onTap: handler.getIsPlaying
-                            ? () => handler.getAudioHandler.pause()
-                            : () => handler.getAudioHandler.play(),
+                        child: SizedBox(
+                          height: 18,
+                          child: Lottie.asset(
+                              AppConstants.paths
+                                  .kLottieAnimationPaths[animations.playPause]!,
+                              controller: _lottiePlayPauseController,
+                              onLoaded: (controller) {
+                            _lottiePlayPauseController.duration =
+                                controller.duration;
+                            if (!handler.getIsPlaying) {
+                              setState(() {
+                                _lottiePlayPauseController.value = 0.52;
+                              });
+                            }
+                          }),
+                        ),
+                        onTap: () {
+                          if (handler.getIsPlaying) {
+                            handler.getAudioHandler.pause();
+                          } else {
+                            handler.getAudioHandler.play();
+                          }
+                          _lottiePlayPauseController.forward().then((value) {
+                            _lottiePlayPauseController.value = 0.1;
+                          });
+                        },
                       ),
                     ],
                   ),

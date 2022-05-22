@@ -10,7 +10,7 @@ import 'buttons/extended_button.dart';
 class CustomAppBar extends StatelessWidget {
   late List<int> _showIcons;
   CustomAppBar({Key? key, List<int>? showIcons}) : super(key: key) {
-    _showIcons = showIcons ?? [0, 1, 2, 3];
+    _showIcons = showIcons ?? [0, 1, 3];
   }
 
   @override

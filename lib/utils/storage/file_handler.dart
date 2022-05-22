@@ -48,6 +48,21 @@ class FileHandler {
     }
   }
 
+  static Future<void> createFolder(String folderName) async {
+    Directory dir = Directory(await _getFilePath(folderName));
+    if (!(await dir.exists())) {
+      await dir.create();
+    }
+    return;
+  }
+
+  static Future<void> deleteFolder(String folderName) async {
+    Directory dir = Directory(await _getFilePath(folderName));
+    if (!(await dir.exists())) {
+      dir.deleteSync();
+    }
+  }
+
   /// [file] : is the type of file to pick a file or a folder
   static Future<List<String?>?> pick({file = true}) async {
     if (file) {

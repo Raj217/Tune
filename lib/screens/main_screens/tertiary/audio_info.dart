@@ -76,7 +76,7 @@ class AudioInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     MediaItem mediaItem = Provider.of<AudioHandlerAdmin>(context, listen: false)
-        .getCurrentPlaylistAudioData[index];
+        .getCurrentPlaylistMediaItems[index];
     return VerticalScroll(
       screenSize: MediaQuery.of(context).size,
       child: Padding(
@@ -124,8 +124,9 @@ class AudioInfo extends StatelessWidget {
                 context: context),
             _infoItem(
                 title: 'Playlist',
-                value: mediaItem.extras?['playlist'].toString()[0] ??
-                    'all', //TODO: Bug-Handle the list
+                value: Provider.of<AudioHandlerAdmin>(context)
+                    .getAudioPlaylists(mediaItem.extras!['path'])
+                    .join(', '), //TODO: Bug-Handle the list
                 context: context),
             _infoItem(
                 title: 'Duration',

@@ -14,14 +14,15 @@ import 'package:tune/utils/states/screen_state_tracker.dart';
 import 'package:tune/widgets/animation/progress.dart';
 import 'package:tune/widgets/app_bar.dart';
 import 'package:tune/widgets/buttons/extended_button.dart';
-import 'package:tune/widgets/music/display/audio_player_mini.dart';
+import 'package:tune/widgets/display/audio_player_mini.dart';
+import 'package:tune/widgets/display/list_viewer.dart';
 import 'package:tune/widgets/scroller/vertical_scroll.dart';
 import 'package:tune/utils/app_constants.dart';
 import 'package:tune/utils/formatter.dart';
 import 'package:tune/utils/storage/file_handler.dart';
 
 import '../tertiary/audio_options.dart';
-import '../tertiary/tab_view.dart';
+import '../../../widgets/display/tab_view.dart';
 
 class LocalAudioScreen extends StatefulWidget {
   /// This screen handles the imports from the local storage and also the
@@ -37,65 +38,6 @@ class _LocalAudioScreenState extends State<LocalAudioScreen>
     with TickerProviderStateMixin {
   late AnimationController _lottieLoadingController;
   ValueNotifier<bool> isLoadingCompleted = ValueNotifier(false);
-  Padding audioTile(MediaItem mediaItem, int index) {
-    return Padding(
-      padding: const EdgeInsets.all(10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Formatter.stringOverflowHandler(
-                  text: mediaItem.title,
-                  width: 200,
-                  style: AppConstants.textStyles.kAudioTitleTextStyle
-                      .copyWith(fontSize: 14)),
-              const SizedBox(height: 5),
-              Text(
-                mediaItem.artist ?? 'Unkown Artist',
-                style: AppConstants.textStyles.kAudioArtistTextStyle
-                    .copyWith(fontSize: 10),
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Text(
-                  Formatter.durationFormatted(mediaItem.duration ??
-                      AppConstants.durations.kDurationNotInitialised),
-                  style: AppConstants.textStyles.kAudioArtistTextStyle),
-              const SizedBox(width: 10),
-              ExtendedButton(
-                extendedRadius: 25,
-                svgName: icons.appOptions,
-                height: 4,
-                angle: pi / 2,
-                color: AppConstants.colors.secondaryColors.kActiveColor,
-                onTap: () {
-                  showModalBottomSheet(
-                          backgroundColor: Colors.transparent,
-                          context: context,
-                          builder: (BuildContext context) {
-                            AppConstants.systemConfigs.setBottomNavBarColor(
-                                AppConstants
-                                    .colors.tertiaryColors.kSongOptionsBGColor);
-                            return AudioOptions(
-                              index: index,
-                            );
-                          })
-                      .then((value) => AppConstants.systemConfigs
-                          .setBottomNavBarColor(AppConstants
-                              .colors.secondaryColors.kBaseCounterColor));
-                },
-              )
-            ],
-          )
-        ],
-      ),
-    );
-  }
 
   @override
   void initState() {
@@ -128,20 +70,19 @@ class _LocalAudioScreenState extends State<LocalAudioScreen>
                       tabViewGap: 20,
                       height: MediaQuery.of(context).size.height * (440 / 756),
                       views: [
-                        ListView.builder(
-                            shrinkWrap: true,
-                            itemCount:
-                                handler.getCurrentPlaylistAudioData.length,
-                            itemBuilder: (context, index) {
-                              return audioTile(
-                                  handler.getCurrentPlaylistAudioData[index],
-                                  index);
-                            }),
-                        Center(
-                          child: Text('Artists'),
+                        ListViewer(
+                          audios: handler.getCurrentPlaylistMediaItems,
+                          styleType: listStyle.addArtist,
+                          currentlyPlaying:
+                              handler.getAudioHandler.mediaItem.value,
                         ),
-                        Center(
-                          child: Text('Playlists'),
+                        ListViewer(
+                          audios: handler.getAudioArtists,
+                          styleType: listStyle.onlyTitle,
+                        ),
+                        ListViewer(
+                          audios: handler.getAllPlaylistsWithSize,
+                          styleType: listStyle.onlyTitle,
                         ),
                       ],
                       tabs: [

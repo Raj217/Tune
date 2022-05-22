@@ -9,8 +9,8 @@ import 'package:tune/screens/main_screens/tertiary/audio_options.dart';
 import 'package:tune/utils/app_constants.dart';
 import 'package:tune/utils/audio/audio_handler_admin.dart';
 import 'package:tune/utils/states/screen_state_tracker.dart';
-import 'package:tune/widgets/music/progress/audio_progress_bar.dart';
-import 'package:tune/widgets/music/progress/audio_progress_digital.dart';
+import 'package:tune/widgets/music_progress/audio_progress_bar.dart';
+import 'package:tune/widgets/music_progress/audio_progress_digital.dart';
 import 'package:tune/widgets/buttons/extended_button.dart';
 import 'package:tune/widgets/scroller/scrolling_text.dart';
 

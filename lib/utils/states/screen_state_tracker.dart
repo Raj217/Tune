@@ -7,8 +7,7 @@ import 'package:tune/screens/main_screens/primary/home_screen.dart';
 import 'package:tune/screens/main_screens/primary/local_audio_screen.dart';
 import 'package:tune/screens/main_screens/primary/playlist_screen.dart';
 import 'package:tune/utils/app_constants.dart';
-import 'package:tune/widgets/music/display/audio_player_mini.dart';
-import 'package:tune/widgets/music/display/playlist_viewer_item.dart';
+import 'package:tune/widgets/display/audio_player_mini.dart';
 
 import '../../widgets/img/poster.dart';
 

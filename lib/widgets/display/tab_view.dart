@@ -80,7 +80,7 @@ class CustomTabView extends StatefulWidget {
 
   /// This tab will be selected initially
   /// Default value = 0
-  int currentActiveIndex;
+  int currentActiveIndex; // TODO: Migrate this to screen_state_tracker
 
   /// These are the icons that are shown on the tab bar at the top
   final List<CustomTab> tabs;
@@ -195,10 +195,26 @@ class _CustomTabViewState extends State<CustomTabView> {
           SizedBox(
             height: widget.tabViewGap,
           ),
-          SingleChildScrollView(
-              child: SizedBox(
-                  height: widget.height ?? double.infinity,
-                  child: widget.views[widget.currentActiveIndex])),
+          GestureDetector(
+            onHorizontalDragEnd: (DragEndDetails drag) {
+              final Velocity vel = drag.velocity;
+              if (vel.pixelsPerSecond.dx < 0 &&
+                  widget.currentActiveIndex + 1 < widget.views.length) {
+                setState(() {
+                  widget.currentActiveIndex++;
+                });
+              } else if (vel.pixelsPerSecond.dx > 0 &&
+                  widget.currentActiveIndex > 0) {
+                setState(() {
+                  widget.currentActiveIndex--;
+                });
+              }
+            },
+            child: SingleChildScrollView(
+                child: SizedBox(
+                    height: widget.height ?? double.infinity,
+                    child: widget.views[widget.currentActiveIndex])),
+          ),
         ],
       ),
     );

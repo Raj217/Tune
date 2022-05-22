@@ -1,3 +1,5 @@
+import 'package:dialogs/dialogs.dart';
+import 'package:dialogs/dialogs/choice_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tune/utils/audio/audio_handler_admin.dart';
@@ -5,7 +7,6 @@ import 'package:tune/widgets/scroller/vertical_scroll.dart';
 
 import '../../../utils/app_constants.dart';
 import '../../../widgets/buttons/extended_button.dart';
-import '../../../widgets/dialog/dialog_box.dart';
 
 class EditSongInfo extends StatefulWidget {
   /// Index of the mediaItem which is to be edited
@@ -19,14 +20,18 @@ class EditSongInfo extends StatefulWidget {
 class _EditSongInfoState extends State<EditSongInfo> {
   Padding _editItem({
     required String title,
-    required String value,
-    required TextEditingController controller,
+    String? value,
+    Widget? child,
+    void Function(String text)? onSubmitted,
+    TextEditingController? controller,
   }) {
     double maxWidth = MediaQuery.of(context).size.width / 2.5;
-    controller.value = TextEditingValue(text: value);
-    controller.selection = TextSelection.fromPosition(TextPosition(
-        offset: controller.text
-            .length)); // to set the cursor at the end instead of the default beginning
+    if (value != null && controller != null) {
+      controller.value = TextEditingValue(text: value);
+      controller.selection = TextSelection.fromPosition(
+          TextPosition(offset: controller.text.length));
+    }
+    // to set the cursor at the end instead of the default beginning
     return Padding(
       padding: EdgeInsets.only(
           left: 30 - AppConstants.sizes.kDefaultIconWidth, bottom: 15),
@@ -39,12 +44,15 @@ class _EditSongInfoState extends State<EditSongInfo> {
           ),
           SizedBox(
             width: maxWidth,
-            child: TextField(
-                controller: controller,
-                style: AppConstants.textStyles.kAudioTitleTextStyle
-                    .copyWith(fontSize: 12),
-                cursorColor: AppConstants.colors.secondaryColors.kBaseColor,
-                decoration: AppConstants.decorations.textFieldDecoration),
+            child: child ??
+                TextField(
+                  controller: controller,
+                  style: AppConstants.textStyles.kAudioTitleTextStyle
+                      .copyWith(fontSize: 12),
+                  cursorColor: AppConstants.colors.secondaryColors.kBaseColor,
+                  decoration: AppConstants.decorations.textFieldDecoration,
+                  onSubmitted: onSubmitted,
+                ),
           ),
         ],
       ),
@@ -53,12 +61,12 @@ class _EditSongInfoState extends State<EditSongInfo> {
 
   late TextEditingController audioTitleController;
   late TextEditingController audioArtistController;
-  late TextEditingController audioPlaylistController;
+  String? currentPlaylistValue;
+  List<String> playlists = [];
   @override
   void initState() {
     audioTitleController = TextEditingController();
     audioArtistController = TextEditingController();
-    audioPlaylistController = TextEditingController();
     super.initState();
   }
 
@@ -68,6 +76,8 @@ class _EditSongInfoState extends State<EditSongInfo> {
         AppConstants.colors.secondaryColors.kBackgroundColor);
     return Consumer<AudioHandlerAdmin>(
       builder: (context, handler, _) {
+        playlists = handler.getAudioPlaylists(
+            handler.getCurrentPlaylistMediaItems[widget.index].extras!['path']);
         return VerticalScroll(
           screenSize: MediaQuery.of(context).size,
           child: Column(
@@ -102,21 +112,23 @@ class _EditSongInfoState extends State<EditSongInfo> {
                         size: AppConstants.sizes.kDefaultIconWidth,
                         color: AppConstants.colors.secondaryColors.kBaseColor),
                     onTap: () async {
-                      dialog(
-                          context: context,
-                          title: 'confirm',
-                          message: 'Do you want to save it?',
-                          ghostButtonText: 'cancel',
-                          activeButtonText: 'OK');
-                      /*
-                      await handler.setNewMetaDataForAudio(
-                          index: widget.index,
-                          artist: audioArtistController.value.text,
-                          audioTitle: audioTitleController.value.text);
-                      Future.delayed(AppConstants.durations.kQuick, () {
-                        Navigator.pop(context);
-                      });
-                      */
+                      ChoiceDialog(
+                        buttonOkColor: AppConstants.colors.secondaryColors
+                            .kBackgroundColor, //TODO: Complete it
+                        title: 'Confirm',
+                        message: 'Do you want to save the changes?',
+                        buttonOkOnPressed: () async {
+                          handler
+                              .setNewMetaDataForAudio(
+                                  index: widget.index,
+                                  artist: audioArtistController.value.text,
+                                  audioTitle: audioTitleController.value.text)
+                              .then((value) {
+                            Navigator.pop(context);
+                            Navigator.pop(context);
+                          });
+                        },
+                      ).show(context);
                     },
                   ),
                 ],
@@ -124,21 +136,42 @@ class _EditSongInfoState extends State<EditSongInfo> {
               _editItem(
                   title: 'Song',
                   value:
-                      handler.getCurrentPlaylistAudioData[widget.index].title,
+                      handler.getCurrentPlaylistMediaItems[widget.index].title,
                   controller: audioTitleController),
               _editItem(
                   title: 'Artist',
-                  value: handler
-                          .getCurrentPlaylistAudioData[widget.index].artist ??
-                      'Unknown Artist',
-                  controller: audioArtistController),
+                  value: audioArtistController.value.text != ''
+                      ? audioArtistController.value.text
+                      : handler.getCurrentPlaylistMediaItems[widget.index]
+                              .artist ??
+                          'Unknown',
+                  controller: audioArtistController,
+                  onSubmitted: (text) {
+                    setState(() {
+                      audioArtistController.value =
+                          TextEditingValue(text: text);
+                    });
+                  }),
               _editItem(
                   title: 'Playlist',
-                  value: handler.getCurrentPlaylistAudioData[widget.index]
-                          .extras?['playlist'][0] ??
-                      'all',
-                  controller:
-                      audioPlaylistController), // TODO: Convert it to a value selector and adder
+                  child: DropdownButton(
+                      // TODO: Make the skeleton work
+                      isExpanded: true,
+                      value: currentPlaylistValue ?? playlists[0],
+                      borderRadius: const BorderRadius.all(Radius.circular(20)),
+                      items: playlists.map((String playlist) {
+                        return DropdownMenuItem<String>(
+                            value: playlist,
+                            child: Text(playlist,
+                                style: AppConstants
+                                    .textStyles.kAudioTitleTextStyle
+                                    .copyWith(fontSize: 12)));
+                      }).toList(),
+                      onChanged: (String? val) {
+                        setState(() {
+                          currentPlaylistValue = val!;
+                        });
+                      })), // TODO: Convert it to a value selector and adder
             ],
           ),
         );

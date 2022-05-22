@@ -43,7 +43,8 @@ class _PosterState extends State<Poster> {
   @override
   Widget build(BuildContext context) {
     Image posterImg;
-    List<int> imgData = Provider.of<AudioHandlerAdmin>(context).getThumbnail;
+    List<int> imgData =
+        Provider.of<AudioHandlerAdmin>(context).getCurrentThumbnail;
     if (imgData.isNotEmpty) {
       posterImg = Image(
         image: CacheImageProvider(

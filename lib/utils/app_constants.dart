@@ -13,7 +13,8 @@ enum animations {
   listeningToMusic,
   soundEqualizerBars,
   waveFlow,
-  loading
+  loading,
+  playPause
 }
 
 /// Available avatars
@@ -209,7 +210,8 @@ class _Paths {
     animations.soundEqualizerBars:
         '$_kLottieAnimationPath/sound-equalizer-bars.json',
     animations.waveFlow: '$_kLottieAnimationPath/wave-flow.json',
-    animations.loading: '$_kLottieAnimationPath/loading_brown.json',
+    animations.loading: '$_kLottieAnimationPath/loading.json',
+    animations.playPause: '$_kLottieAnimationPath/play_pause.json',
   };
   final Map<avatars, String> kAvatarPaths = {
     avatars.female1: '$_kAvatarPath/Female 1.svg',

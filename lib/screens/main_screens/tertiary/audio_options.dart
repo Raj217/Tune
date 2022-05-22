@@ -4,6 +4,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:tune/screens/main_screens/tertiary/add_to_playlist.dart';
+import 'dart:io';
 
 import 'package:tune/utils/audio/audio_handler_admin.dart';
 import 'package:tune/widgets/animation/toast.dart';
@@ -51,7 +52,7 @@ class _AudioOptionsState extends State<AudioOptions> {
     return GestureDetector(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 18),
+        padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 18),
         child: Row(
           children: [
             icon != null
@@ -70,9 +71,12 @@ class _AudioOptionsState extends State<AudioOptions> {
             const SizedBox(
               width: 10,
             ),
-            Text(
-              text,
-              style: AppConstants.textStyles.kSongOptionsTextStyle,
+            Padding(
+              padding: const EdgeInsets.only(bottom: 5),
+              child: Text(
+                text,
+                style: AppConstants.textStyles.kSongOptionsTextStyle,
+              ),
             ),
           ],
         ),
@@ -87,7 +91,7 @@ class _AudioOptionsState extends State<AudioOptions> {
         // 0.0 to 2.0
         values.add(i / 10);
       }
-      MediaItem mediaItem = handler.getCurrentPlaylistAudioData[widget.index];
+      MediaItem mediaItem = handler.getCurrentPlaylistMediaItems[widget.index];
       if (widget.index == handler.getPlayer.currentIndex) {
         canEditSpeedAndPitch = true;
       }
@@ -164,6 +168,14 @@ class _AudioOptionsState extends State<AudioOptions> {
                               text: mediaItem.title)
                           .then((value) => Navigator.pop(context));
                     }),
+                /*
+                //TODO: Learn kotlin and implement it
+                _button(
+                    icon: Icons.circle_notifications_outlined,
+                    text: 'set as ringtone',
+                    onTap: () {
+                      File('file:///${mediaItem.extras!['path']}');
+                    }),*/
                 _button(
                     icon: Icons.info_outline_rounded,
                     text: 'info',

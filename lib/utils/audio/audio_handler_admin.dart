@@ -73,7 +73,8 @@ class AudioHandlerAdmin extends ChangeNotifier {
   /// NOTE: Not storing as [ConcatenatingAudioSource] since the number of audios
   /// might increase with time which will take a lot of space to store them all at once.
   /// Better to initialise them whenever necessary with [initPlaylist] method
-  final Map<String, List<String>> _playlists = {};
+  final Map<String, List<String>> _playlists =
+      {}; // TODO: Convert to Map<String, List<MediaItem>>
 
   /// The main brain of Tune which is responsible for handling all the playing,
   /// pausing, etc. thanks to audio_service
@@ -146,10 +147,16 @@ class AudioHandlerAdmin extends ChangeNotifier {
   Future<void> addAudio(
       {required String path, String playlistName = 'all'}) async {
     if (playlistName == _currentPlaylistName) {
-      if ((_currentPlaylistMediaItems.indexWhere(
-              (MediaItem mediaItem) => mediaItem.extras?['path'] == path)) !=
-          -1) {
-        // the song is already in the current playlist
+      int ind = (_currentPlaylistMediaItems.indexWhere(
+          (MediaItem mediaItem) => mediaItem.extras?['path'] == path));
+      if (ind != -1) {
+        if (!_currentPlaylistMediaItems[ind]
+            .extras!['playlists']
+            .contains(playlistName)) {
+          _currentPlaylistMediaItems[ind]
+              .extras!['playlists']
+              .add(playlistName);
+        }
         return;
       } else {
         await _currentPlaylist.add(AudioSource.uri(Uri.file(path), tag: path));
@@ -231,6 +238,7 @@ class AudioHandlerAdmin extends ChangeNotifier {
   }
 
   Future<void> readData() async {
+    FileHandler.deleteFolder('temp');
     String data = await FileHandler.read(fileName: fileStorageName);
 
     if (data != '[]') {
@@ -325,8 +333,10 @@ class AudioHandlerAdmin extends ChangeNotifier {
       int ind = _currentPlaylistMediaItems.indexWhere(
           (MediaItem mediaItem) => mediaItem.extras!['path'] == path);
       //TODO: should ind = -1 appear?
-      _currentPlaylist.removeAt(ind);
-      _currentPlaylistMediaItems.removeAt(ind);
+      if (ind != -1) {
+        _currentPlaylist.removeAt(ind);
+        _currentPlaylistMediaItems.removeAt(ind);
+      }
     }
     notifyListeners();
     saveData();
@@ -358,7 +368,6 @@ class AudioHandlerAdmin extends ChangeNotifier {
   }
 
   bool isFavorite(String path) {
-    print(_data['audios'][path]);
     if (_data['audios'][path]['playlists'].contains('favorite')) {
       return true;
     }
@@ -386,11 +395,12 @@ class AudioHandlerAdmin extends ChangeNotifier {
       });
     }
     int posterImgIndex = _currentPlaylistMediaItems.length;
-    while (await FileHandler.fileExists('posterImage$posterImgIndex')) {
+    await FileHandler.createFolder('temp');
+    while (await FileHandler.fileExists('temp/posterImage$posterImgIndex')) {
       posterImgIndex++;
     }
     String posterPath = await FileHandler.save(
-        fileBytes: imgBytes, fileName: 'posterImage$posterImgIndex');
+        fileBytes: imgBytes, fileName: 'temp/posterImage$posterImgIndex');
 
     List<int> imageData = [];
     if (_metaData.pictures.isNotEmpty) {
@@ -445,7 +455,7 @@ class AudioHandlerAdmin extends ChangeNotifier {
 
   PlayMode get getPlaylistMode => _playlistAllowedModes[playlistModeIndex];
   AudioHandler get getAudioHandler => _audioHandler;
-  List<int> get getThumbnail =>
+  List<int> get getCurrentThumbnail =>
       _audioHandler.mediaItem.value?.extras?['thumbnail'] ?? [];
 
   String get getTitle {
@@ -463,12 +473,44 @@ class AudioHandlerAdmin extends ChangeNotifier {
   Duration get getPosition => _player.position;
   bool get getIsPlaying => _player.playing;
   ConcatenatingAudioSource get getCurrentPlaylist => _currentPlaylist;
-  List<MediaItem> get getCurrentPlaylistAudioData => _currentPlaylistMediaItems;
+  List<MediaItem> get getCurrentPlaylistMediaItems =>
+      _currentPlaylistMediaItems;
   int get getNumberOfAudios => _currentPlaylistMediaItems.length;
   int get getCurrentlyPlayingAudioIndex => _player.currentIndex ?? -1;
   bool get getIsUpdating => _isUpdating;
   Map<String, List<String>> get getAllPlaylists => _playlists;
   String get getCurrentPlaylistName => _currentPlaylistName;
+  List<String> getAudioPlaylists(String path) =>
+      _data['audios'][path]['playlists'];
+  Map<String, List<MediaItem>> get getAudioArtists {
+    // TODO: Change this to all songs
+    Map<String, List<MediaItem>> artists = {};
+    String artist;
+    for (int ind = 0; ind < _currentPlaylistMediaItems.length; ind++) {
+      artist = _currentPlaylistMediaItems[ind].artist ?? 'Unknown';
+      if (artists.containsKey(artist)) {
+        artists[artist]!.add(_currentPlaylistMediaItems[ind]);
+      } else {
+        artists[artist] = [_currentPlaylistMediaItems[ind]];
+      }
+    }
+    return artists;
+  }
+
+  Map<String, List<MediaItem>> get getAllPlaylistsWithSize {
+    Map<String, List<MediaItem>> playlists = {};
+    List<MediaItem> listOfAudioMediaItem = [];
+    for (String playlist in _playlists.keys) {
+      listOfAudioMediaItem = [];
+      for (String path in _playlists[playlist]!) {
+        listOfAudioMediaItem.add(_currentPlaylistMediaItems[
+            _currentPlaylistMediaItems
+                .indexWhere((item) => item.extras!['path'] == path)]);
+      }
+      playlists[playlist] = listOfAudioMediaItem;
+    }
+    return playlists;
+  }
 }
 
 class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
@@ -526,7 +568,6 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
 
   @override
   Future<void> updateMediaItem(MediaItem mItem) async {
-    print(mItem.artUri);
     mediaItem.add(mItem);
   }
 
