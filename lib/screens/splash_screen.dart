@@ -103,12 +103,6 @@ class _SplashScreenState extends State<SplashScreen>
                   controller: _lottieAnimationController,
                 ),
               ),
-              ValueListenableBuilder<double>(
-                  valueListenable:
-                      Provider.of<AudioHandlerAdmin>(context).getProgress,
-                  builder: (context, value, _) {
-                    return Text((value * 100).toString());
-                  })
             ],
           ),
         ),
