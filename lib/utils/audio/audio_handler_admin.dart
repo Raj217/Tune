@@ -14,6 +14,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:id3tag/id3tag.dart';
 import 'dart:io';
 import 'package:audiotagger/audiotagger.dart';
+import 'package:rxdart/rxdart.dart';
 
 import 'package:tune/utils/storage/file_handler.dart';
 import 'package:tune/utils/app_constants.dart';
@@ -44,7 +45,8 @@ final AudioPlayer _player = AudioPlayer();
 /// List of mediaItem of the currentPlaylist
 List<MediaItem> _currentPlaylistMediaItems = [];
 bool _isUpdating = false;
-String fileStorageName = 'cookies.txt';
+String audioStorageName = 'db.json';
+String userDataStorageName = 'cookies.json';
 
 class AudioHandlerAdmin extends ChangeNotifier {
   /// [_data] is responsible for storing all sorts of data for the app audio purpose
@@ -55,15 +57,13 @@ class AudioHandlerAdmin extends ChangeNotifier {
   ///   ⚫ avatar
   ///   ⚫ playlist mode
   ///
-  /// TODO: Add current position also maybe?
-  ///
   /// audios includes the song path with some additional information which are:
   ///    ⚫ playlists
   ///
   /// in the form of 'path': {'playlists': []}.
   ///
   /// NOTE: Favorites are stored as playlist here
-  final Map<String, dynamic> _data = {'userData': [], 'audios': {}};
+  final Map<String, dynamic> _data = {'userData': {}, 'audios': {}};
 
   /// [_currentPlaylist] stores the playlist name and there corresponding song index.
   /// It is made after initialising [_data] since it's data is derived from it.
@@ -73,8 +73,7 @@ class AudioHandlerAdmin extends ChangeNotifier {
   /// NOTE: Not storing as [ConcatenatingAudioSource] since the number of audios
   /// might increase with time which will take a lot of space to store them all at once.
   /// Better to initialise them whenever necessary with [initPlaylist] method
-  final Map<String, List<String>> _playlists =
-      {}; // TODO: Convert to Map<String, List<MediaItem>>
+  final Map<String, List<String>> _playlists = {};
 
   /// The main brain of Tune which is responsible for handling all the playing,
   /// pausing, etc. thanks to audio_service
@@ -95,22 +94,20 @@ class AudioHandlerAdmin extends ChangeNotifier {
   final tagger = Audiotagger();
 
   /// How do you want to repeat the song/playlist (allowed modes)
-  final List<PlayMode> _playlistAllowedModes = [
-    PlayMode.repeatAll,
-    PlayMode.repeatThis,
-    PlayMode.shuffleRepeat
-  ];
+  final List<PlayMode> _playlistAllowedModes = [PlayMode.endAfterPlaylist];
 
   /// This keeps track of the current playlist mode. It can be set to
   /// any value from [_playlistAllowedModes]
   int playlistModeIndex = 0;
 
+  ValueNotifier<double> progress = ValueNotifier(0);
+
   /// The heart of Tune which handles all the things related to audio
   /// with the help of [AudioPlayerHandler]
   AudioHandlerAdmin({required AudioHandler audioHandler})
       : _audioHandler = audioHandler {
-    _listenToPlaybackState();
     _player.setAudioSource(_currentPlaylist);
+    _listenToPlaybackState();
   }
 
   void _listenToPlaybackState() {
@@ -146,36 +143,41 @@ class AudioHandlerAdmin extends ChangeNotifier {
 
   Future<void> addAudio(
       {required String path, String playlistName = 'all'}) async {
-    if (playlistName == _currentPlaylistName) {
-      int ind = (_currentPlaylistMediaItems.indexWhere(
-          (MediaItem mediaItem) => mediaItem.extras?['path'] == path));
-      if (ind != -1) {
-        if (!_currentPlaylistMediaItems[ind]
-            .extras!['playlists']
-            .contains(playlistName)) {
-          _currentPlaylistMediaItems[ind]
+    try {
+      if (playlistName == _currentPlaylistName) {
+        int ind = (_currentPlaylistMediaItems.indexWhere(
+            (MediaItem mediaItem) => mediaItem.extras?['path'] == path));
+        if (ind != -1) {
+          if (!_currentPlaylistMediaItems[ind]
               .extras!['playlists']
-              .add(playlistName);
+              .contains(playlistName)) {
+            _currentPlaylistMediaItems[ind]
+                .extras!['playlists']
+                .add(playlistName);
+          }
+          return;
+        } else {
+          await _currentPlaylist
+              .add(AudioSource.uri(Uri.file(path), tag: path));
+          _currentPlaylistMediaItems.add(await getMediaData(path));
+          _updateData(path: path, playlistName: playlistName);
+          await saveData();
+          if (_audioHandler.mediaItem.value?.title == null &&
+              _player.currentIndex != null) {
+            await _audioHandler.updateMediaItem(
+                _currentPlaylistMediaItems[_player.currentIndex!]);
+          }
+          notifyListeners();
+          return;
         }
-        return;
       } else {
-        await _currentPlaylist.add(AudioSource.uri(Uri.file(path), tag: path));
-        _currentPlaylistMediaItems.add(await getMediaData(path));
+        // Store in a different playlist
         _updateData(path: path, playlistName: playlistName);
         await saveData();
-        if (_audioHandler.mediaItem.value?.title == null &&
-            _player.currentIndex != null) {
-          await _audioHandler.updateMediaItem(
-              _currentPlaylistMediaItems[_player.currentIndex!]);
-        }
         notifyListeners();
         return;
       }
-    } else {
-      // Store in a different playlist
-      _updateData(path: path, playlistName: playlistName);
-      await saveData();
-      notifyListeners();
+    } catch (e) {
       return;
     }
   }
@@ -214,7 +216,8 @@ class AudioHandlerAdmin extends ChangeNotifier {
     }
   }
 
-  void addNewPlaylist({required String playlistName, List<String>? paths}) {
+  Future<void> addNewPlaylist(
+      {required String playlistName, List<String>? paths}) async {
     if (!_playlists.containsKey(playlistName)) {
       _playlists[playlistName] = paths ?? [];
       for (String path in paths ?? []) {
@@ -229,8 +232,9 @@ class AudioHandlerAdmin extends ChangeNotifier {
         }
       }
     }
-    saveData();
     notifyListeners();
+    saveData();
+    return;
   }
 
   Future<void> deletePlaylistStorage({required String playlistName}) async {
@@ -239,17 +243,38 @@ class AudioHandlerAdmin extends ChangeNotifier {
 
   Future<void> readData() async {
     FileHandler.deleteFolder('temp');
-    String data = await FileHandler.read(fileName: fileStorageName);
-
-    if (data != '[]') {
-      dynamic decodedData = await json.decode(data);
-      _data['userData'] = decodedData['userData'];
-      for (String path in decodedData['audios'].keys) {
-        for (String pName in decodedData['audios'][path]['playlists']) {
-          await addAudio(path: path, playlistName: pName);
+    String audioData = await FileHandler.read(fileName: audioStorageName);
+    String userData = await FileHandler.read(fileName: userDataStorageName);
+    progress.value = 0;
+    int prog = 0;
+    int length = 0;
+    if (audioData != '[]') {
+      dynamic decodedAudioData = await json.decode(audioData);
+      dynamic decodedUserData = await json.decode(userData);
+      _data['userData'] = decodedUserData;
+      for (String path in decodedAudioData.keys) {
+        for (String _ in decodedAudioData[path]['playlists']) {
+          length++;
         }
       }
+      for (String path in decodedAudioData.keys) {
+        for (String pName in decodedAudioData[path]['playlists']) {
+          await addAudio(path: path, playlistName: pName);
+          progress.value = prog++ / length;
+        }
+      }
+
+      _cleanData();
+
+      int ind = _currentPlaylistMediaItems.indexWhere((item) =>
+          item.extras!['path'] == (_data['userData']['currentAudio'] ?? ''));
+
+      await _audioHandler.skipToQueueItem(ind != -1 ? ind : 0);
+      await _audioHandler.seek(
+          Duration(milliseconds: _data['userData']['currentPosition'] ?? 0));
+      await _audioHandler.pause();
     }
+
     return;
   }
 
@@ -263,10 +288,23 @@ class AudioHandlerAdmin extends ChangeNotifier {
     }
   }
 
-  Future<void> saveData() async {
-    _cleanData();
+  Future<void> saveUserData() async {
+    if (_player.currentIndex != null) {
+      _data['userData']['currentAudio'] =
+          _audioHandler.mediaItem.value?.extras!['path'];
+      _data['userData']['currentPosition'] = _player.position.inMilliseconds;
+    }
+
     await FileHandler.save(
-        fileName: fileStorageName, fileContents: json.encode(_data));
+        fileName: userDataStorageName,
+        fileContents: json.encode(_data['userData']));
+    return;
+  }
+
+  Future<void> saveData() async {
+    await FileHandler.save(
+        fileName: audioStorageName, fileContents: json.encode(_data['audios']));
+    return;
   }
 
   Future<void> removeAudio(
@@ -319,14 +357,14 @@ class AudioHandlerAdmin extends ChangeNotifier {
         .remove(playlistName);
 
     if (removeSuccess) {
-      saveData();
+      await saveData();
       notifyListeners();
       return;
     }
   }
 
-  void removeFromPlaylist(
-      {required String path, required String playlistName}) {
+  Future<void> removeFromPlaylist(
+      {required String path, required String playlistName}) async {
     _playlists[playlistName]?.remove(path);
     _data['audios'][path]['playlists'].remove(playlistName);
     if (playlistName == _currentPlaylistName) {
@@ -338,15 +376,15 @@ class AudioHandlerAdmin extends ChangeNotifier {
         _currentPlaylistMediaItems.removeAt(ind);
       }
     }
-    notifyListeners();
     saveData();
+    notifyListeners();
   }
 
   Future<void> addToPlaylist(
       {required String path, required String playlistName}) async {
     await addAudio(path: path, playlistName: playlistName);
     notifyListeners();
-    saveData();
+    await saveData();
   }
 
   Future<void> updateMediaItem() async {
@@ -451,6 +489,12 @@ class AudioHandlerAdmin extends ChangeNotifier {
     super.dispose();
   }
 
+  Stream<MediaState> get _mediaStateStream =>
+      Rx.combineLatest2<MediaItem?, Duration, MediaState>(
+          _audioHandler.mediaItem,
+          AudioService.position,
+          (mediaItem, position) => MediaState(mediaItem, position));
+
   // ------------------------------ Getter Methods ------------------------------
 
   PlayMode get getPlaylistMode => _playlistAllowedModes[playlistModeIndex];
@@ -511,6 +555,9 @@ class AudioHandlerAdmin extends ChangeNotifier {
     }
     return playlists;
   }
+
+  Stream<MediaState> get getMediaStateStream => _mediaStateStream;
+  ValueNotifier<double> get getProgress => progress;
 }
 
 class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
@@ -600,4 +647,11 @@ class AudioPlayerHandler extends BaseAudioHandler with SeekHandler {
       queueIndex: event.currentIndex,
     );
   }
+}
+
+class MediaState {
+  final MediaItem? mediaItem;
+  final Duration position;
+
+  MediaState(this.mediaItem, this.position);
 }

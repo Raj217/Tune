@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -7,7 +5,7 @@ import 'package:tune/utils/app_constants.dart';
 import 'package:tune/utils/audio/audio_handler_admin.dart';
 import 'package:tune/utils/formatter.dart';
 
-class AudioProgressBarDigital extends StatefulWidget {
+class AudioProgressBarDigital extends StatelessWidget {
   final Duration position;
   final Duration totalDuration;
 
@@ -17,43 +15,21 @@ class AudioProgressBarDigital extends StatefulWidget {
       : super(key: key);
 
   @override
-  State<AudioProgressBarDigital> createState() =>
-      _AudioProgressBarDigitalState();
-}
-
-class _AudioProgressBarDigitalState extends State<AudioProgressBarDigital> {
-  late Timer timer;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      timer = Timer.periodic(
-          AppConstants.durations.audioProgressDigitalDuration, (timer) {
-        setState(() {});
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    timer.cancel();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Consumer<AudioHandlerAdmin>(
-      builder: (context, handler, _) {
+    return StreamBuilder<MediaState>(
+      stream: Provider.of<AudioHandlerAdmin>(context).getMediaStateStream,
+      builder: (context, snapshot) {
+        final mediaState = snapshot.data;
+        Provider.of<AudioHandlerAdmin>(context, listen: false).saveUserData();
         return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           Text(
-            Formatter.durationFormatted(handler.getPosition),
+            Formatter.durationFormatted(mediaState?.position ?? Duration.zero),
             style: AppConstants.textStyles.kAudioArtistTextStyle.copyWith(
                 color: AppConstants.colors.secondaryColors.kActiveColor,
                 fontWeight: FontWeight.w400),
           ),
           Text(
-            ' - ${Formatter.durationFormatted(handler.getTotalDuration)}',
+            ' - ${Formatter.durationFormatted(mediaState?.mediaItem?.duration ?? Duration.zero)}',
             style: AppConstants.textStyles.kAudioArtistTextStyle,
           )
         ]);

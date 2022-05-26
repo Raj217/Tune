@@ -26,7 +26,7 @@ class CacheImageProvider extends ImageProvider<CacheImageProvider> {
   }
 
   Future<Codec> _loadAsync(DecoderCallback decode) async {
-    // the DefaultCacheManager() encapsulation, it get cache from local storage.
+    // the DefaultCacheManager() encapsulation, it get cache from local file_handler.
     final Uint8List bytes = img;
 
     if (bytes.lengthInBytes == 0) {

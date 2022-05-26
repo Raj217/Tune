@@ -22,7 +22,7 @@ class CustomAppBar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Visibility(
-              visible: _showIcons.contains(0) ? true : false,
+              visible: _showIcons.contains(0),
               child: ExtendedButton(
                 svgName: icons.menu,
                 takeDefaultAsWidth: true,
@@ -35,10 +35,10 @@ class CustomAppBar extends StatelessWidget {
             Row(
               children: [
                 Visibility(
-                    visible: _showIcons.contains(2) ? true : false,
+                    visible: _showIcons.contains(2),
                     child: ExtendedButton(svgName: icons.search)),
                 Visibility(
-                  visible: _showIcons.contains(3) ? true : false,
+                  visible: _showIcons.contains(3),
                   child: ExtendedButton(
                     svgName: icons.appOptions,
                     takeDefaultAsWidth: true,
@@ -49,7 +49,7 @@ class CustomAppBar extends StatelessWidget {
           ],
         ),
         Visibility(
-          visible: _showIcons.contains(1) ? true : false,
+          visible: _showIcons.contains(1),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

@@ -7,10 +7,11 @@
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:tune/utils/app_constants.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
+import 'package:tune/utils/app_constants.dart';
 import 'package:tune/utils/audio/audio_handler_admin.dart';
 import 'package:tune/utils/states/screen_state_tracker.dart';
 import 'screens/custom_drawer.dart';
@@ -27,6 +28,9 @@ Future<void> main() async {
         androidNotificationChannelName: 'Audio playback',
         androidNotificationOngoing: true,
       ));
+  WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+
   runApp(const Tune());
 }
 
@@ -44,7 +48,6 @@ class Tune extends StatelessWidget {
             create: (BuildContext context) => ScreenStateTracker()),
       ],
       child: MaterialApp(
-        navigatorObservers: [SentryNavigatorObserver()],
         debugShowCheckedModeBanner: false,
         title: 'Tune',
         theme: ThemeData.dark().copyWith(

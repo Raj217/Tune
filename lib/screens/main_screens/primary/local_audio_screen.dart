@@ -25,7 +25,7 @@ import '../tertiary/audio_options.dart';
 import '../../../widgets/display/tab_view.dart';
 
 class LocalAudioScreen extends StatefulWidget {
-  /// This screen handles the imports from the local storage and also the
+  /// This screen handles the imports from the local file_handler and also the
   /// displays various playlists
   const LocalAudioScreen({Key? key}) : super(key: key);
   static String id = 'Local Audio Screen';
@@ -101,18 +101,6 @@ class _LocalAudioScreenState extends State<LocalAudioScreen>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    GlowButton(
-                        color: AppConstants.colors.secondaryColors.kBaseColor,
-                        child: Text(
-                          'DELETE DATA',
-                          style: AppConstants.textStyles.kAudioArtistTextStyle
-                              .copyWith(
-                                  color: AppConstants
-                                      .colors.secondaryColors.kBackgroundColor),
-                        ),
-                        onPressed: () async {
-                          FileHandler.delete('cookies.txt');
-                        }),
                     StarMenu(
                       params: StarMenuParameters(
                           backgroundParams: BackgroundParams(
@@ -129,40 +117,44 @@ class _LocalAudioScreenState extends State<LocalAudioScreen>
                               PageRouteBuilder(
                                   opaque: false,
                                   pageBuilder: (context, _, __) {
-                                    return ValueListenableBuilder(
+                                    return ValueListenableBuilder<bool>(
                                       valueListenable: isLoadingCompleted,
                                       builder: (BuildContext context,
-                                          bool isLoadingCompleted,
-                                          Widget? child) {
-                                        if (isLoadingCompleted == true) {
-                                          _lottieLoadingController.stop();
+                                          isCompleted, Widget? child) {
+                                        if (isCompleted) {
                                           Navigator.pop(context);
                                         }
-                                        return Stack(
-                                          alignment: Alignment.center,
+                                        return Column(
                                           children: [
-                                            Icon(
-                                              Icons.circle,
-                                              size: 300,
-                                            ),
                                             Center(
-                                                child: Lottie.asset(
-                                                    AppConstants.paths
-                                                            .kLottieAnimationPaths[
-                                                        animations.loading]!,
-                                                    onLoaded: (controller) {
-                                              _lottieLoadingController
-                                                      .duration =
-                                                  controller.duration;
-                                              _lottieLoadingController.repeat();
-                                            })),
+                                              child: Stack(
+                                                alignment: Alignment.center,
+                                                children: [
+                                                  Icon(
+                                                    Icons.circle,
+                                                    size: 300,
+                                                  ),
+                                                  Lottie.asset(
+                                                      AppConstants.paths
+                                                              .kLottieAnimationPaths[
+                                                          animations.loading]!,
+                                                      onLoaded: (controller) {
+                                                    _lottieLoadingController
+                                                            .duration =
+                                                        controller.duration;
+                                                    _lottieLoadingController
+                                                        .repeat();
+                                                  }),
+                                                ],
+                                              ),
+                                            ),
                                           ],
                                         );
                                       },
                                     );
                                   }),
                             );
-                            FileHandler.pick(file: index == 0 ? true : false)
+                            FileHandler.pick(isFile: index == 0 ? true : false)
                                 .then((filePaths) async {
                               if (filePaths != null) {
                                 isLoadingCompleted.value = false;

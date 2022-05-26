@@ -33,14 +33,9 @@ class _AudioOptionsState extends State<AudioOptions> {
   /// other one won't change automatically)
   bool changeOther = true;
 
-  /// What are the values you want to pass to [ValuePicke] (i.e. values available
+  /// What are the values you want to pass to [ValuePicker] (i.e. values available
   /// for the user to change speed/pitch)
   List<double> values = [];
-
-  /// Is Speed/Pitch change allowed?
-  ///
-  /// TODO: Remove this by storing the values
-  bool canEditSpeedAndPitch = false;
 
   /// Either svgName or icon must be provided,
   /// If both are provided icon will be displayed
@@ -91,9 +86,11 @@ class _AudioOptionsState extends State<AudioOptions> {
         // 0.0 to 2.0
         values.add(i / 10);
       }
-      MediaItem mediaItem = handler.getCurrentPlaylistMediaItems[widget.index];
-      if (widget.index == handler.getPlayer.currentIndex) {
-        canEditSpeedAndPitch = true;
+      MediaItem? mediaItem;
+      if (handler.getCurrentPlaylistMediaItems.length > widget.index) {
+        mediaItem = handler.getCurrentPlaylistMediaItems[widget.index];
+      } else {
+        Navigator.pop(context);
       }
       return Container(
         decoration: BoxDecoration(
@@ -109,62 +106,48 @@ class _AudioOptionsState extends State<AudioOptions> {
                     svgName: icons.soundWave,
                     text: 'change pitch',
                     onTap: () {
-                      if (canEditSpeedAndPitch) {
-                        valuePicker(
-                          context: context,
-                          values: values,
-                          index: (handler.getPlayer.pitch * 10).toInt(),
-                          changeOther: changeOther,
-                          changeOtherText: 'speed',
-                          onChangeOtherBoolFunction: (bool val) {
-                            changeOther = val;
-                          },
-                          onChange: (double val) async {
-                            await handler.getPlayer.setPitch(val);
-                            if (changeOther == true) {
-                              await handler.getPlayer.setSpeed(val);
-                            }
-                          },
-                        );
-                      } else {
-                        toast(
-                            context: context,
-                            text:
-                                "pitch can be changed of only the currently playing song");
-                      }
+                      valuePicker(
+                        context: context,
+                        values: values,
+                        index: (handler.getPlayer.pitch * 10).toInt(),
+                        changeOther: changeOther,
+                        changeOtherText: 'speed',
+                        onChangeOtherBoolFunction: (bool val) {
+                          changeOther = val;
+                        },
+                        onChange: (double val) async {
+                          await handler.getPlayer.setPitch(val);
+                          if (changeOther == true) {
+                            await handler.getPlayer.setSpeed(val);
+                          }
+                        },
+                      );
                     }),
                 _button(
                     icon: Icons.speed,
                     text: 'change speed',
                     onTap: () {
-                      if (canEditSpeedAndPitch) {
-                        valuePicker(
-                            context: context,
-                            values: values,
-                            index: (handler.getPlayer.speed * 10).toInt(),
-                            changeOther: changeOther,
-                            changeOtherText: 'pitch',
-                            onChangeOtherBoolFunction: (bool val) {
-                              changeOther = val;
-                            },
-                            onChange: (double val) async {
-                              await handler.getPlayer.setSpeed(val);
-                              if (changeOther == true) {
-                                await handler.getPlayer.setPitch(val);
-                              }
-                            });
-                      } else {
-                        toast(
-                            context: context,
-                            text:
-                                "speed can be changed of only the currently playing song");
-                      }
+                      valuePicker(
+                          context: context,
+                          values: values,
+                          index: (handler.getPlayer.speed * 10).toInt(),
+                          changeOther: changeOther,
+                          changeOtherText: 'pitch',
+                          onChangeOtherBoolFunction: (bool val) {
+                            changeOther = val;
+                          },
+                          onChange: (double val) async {
+                            await handler.getPlayer.setSpeed(val);
+                            if (changeOther == true) {
+                              await handler.getPlayer.setPitch(val);
+                            }
+                          });
                     }),
                 _button(
                     icon: Icons.share_outlined,
                     text: 'share',
                     onTap: () async {
-                      await Share.shareFiles([mediaItem.extras!['path']],
+                      await Share.shareFiles([mediaItem!.extras!['path']],
                               text: mediaItem.title)
                           .then((value) => Navigator.pop(context));
                     }),
@@ -193,7 +176,7 @@ class _AudioOptionsState extends State<AudioOptions> {
                     onTap: () async {
                       addToPlaylist(
                               context: context,
-                              currentAudioPath: mediaItem.extras!['path'])
+                              currentAudioPath: mediaItem!.extras!['path'])
                           .then((_) => AppConstants.systemConfigs
                               .setBottomNavBarColor(AppConstants
                                   .colors.tertiaryColors.kSongOptionsBGColor));

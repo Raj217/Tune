@@ -23,9 +23,10 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   Timer? timer;
   late AnimationController _lottieAnimationController;
+  bool isFinished = false;
 
   @override
   void initState() {
@@ -33,14 +34,15 @@ class _SplashScreenState extends State<SplashScreen>
 
     _lottieAnimationController = AnimationController(vsync: this);
 
+    WidgetsBinding.instance?.addObserver(this);
+
     AppConstants.systemConfigs.lockPortraitMode();
     AppConstants.systemConfigs.setBottomNavBarColor(
         AppConstants.colors.secondaryColors.kBackgroundColor);
 
-    Provider.of<AudioHandlerAdmin>(context, listen: false).readData()
-
-        /// Read the initial Data
-        .then((_) {
+    Provider.of<AudioHandlerAdmin>(context, listen: false)
+        .readData()
+        .then((value) {
       _lottieAnimationController.stop();
       _lottieAnimationController.dispose();
       Navigator.pushNamed(context, CustomDrawer.id).then(
@@ -50,6 +52,15 @@ class _SplashScreenState extends State<SplashScreen>
           /// again opening the custom drawer(irritating)
           (value) => exit(0));
     });
+  }
+
+  @override
+  void dispose() {
+    _lottieAnimationController.dispose();
+    WidgetsBinding.instance?.removeObserver(this);
+
+    Provider.of<AudioHandlerAdmin>(context, listen: false).saveUserData();
+    super.dispose();
   }
 
   @override
@@ -91,7 +102,13 @@ class _SplashScreenState extends State<SplashScreen>
                   },
                   controller: _lottieAnimationController,
                 ),
-              )
+              ),
+              ValueListenableBuilder<double>(
+                  valueListenable:
+                      Provider.of<AudioHandlerAdmin>(context).getProgress,
+                  builder: (context, value, _) {
+                    return Text((value * 100).toString());
+                  })
             ],
           ),
         ),

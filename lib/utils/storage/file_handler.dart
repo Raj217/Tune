@@ -1,4 +1,4 @@
-/// Handle All local storage related tasks
+/// Handle All local file_handler related tasks
 
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
@@ -63,13 +63,12 @@ class FileHandler {
     }
   }
 
-  /// [file] : is the type of file to pick a file or a folder
-  static Future<List<String?>?> pick({file = true}) async {
-    if (file) {
+  /// [isFile] : is the type of file to pick a file or a folder
+  static Future<List<String?>?> pick({isFile = true}) async {
+    if (isFile) {
       /// Allow user to pick files using a file browser
       FilePickerResult? file = await FilePicker.platform.pickFiles(
         type: FileType.audio,
-        allowMultiple: true,
         dialogTitle: 'Select a song',
         withData: true,
       );
@@ -87,6 +86,7 @@ class FileHandler {
             .toList();
       }
     }
+    return [];
   }
 
   static Future<String> read({required String fileName}) async {
@@ -107,14 +107,18 @@ class FileHandler {
     File file = File(filePath);
 
     if (fileBytes != null) {
+      /*
       if (await file.exists()) {
-        file.delete(); // If old file is there delete that to store the new
-      }
+        await file
+            .delete(); // If old file is there delete that to store the new
+      } */
       file.writeAsBytes(fileBytes); // For files like of images
     } else if (fileContents != null) {
+      /*
       if (await file.exists()) {
-        file.delete(); // If old file is there delete that to store the new
-      }
+        await file
+            .delete(); // If old file is there delete that to store the new
+      } */
       file.writeAsString(
           fileContents); // For files like of json for info storing
     }

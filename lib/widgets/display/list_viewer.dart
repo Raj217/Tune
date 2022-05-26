@@ -99,6 +99,7 @@ class _ListViewerState extends State<ListViewer> {
 
   Widget titleTile(String title, int nSongs) {
     return GestureDetector(
+      // TODO: Convert to InkWell
       behavior: HitTestBehavior.opaque,
       onTap: () {
         AppConstants.systemConfigs.setBottomNavBarColor(

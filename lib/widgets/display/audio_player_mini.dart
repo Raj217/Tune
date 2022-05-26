@@ -51,12 +51,14 @@ class _AudioPlayerMiniState extends State<AudioPlayerMini>
   void initState() {
     _lottiePlayPauseController = AnimationController(vsync: this)
       ..addListener(() {
-        if (!Provider.of<AudioHandlerAdmin>(context, listen: false)
-                    .getIsPlaying ==
-                true &&
-            _lottiePlayPauseController.value >= 0.52) {
-          // Paused
-          _lottiePlayPauseController.stop();
+        if (_lottiePlayPauseController.value >= 0.52) {
+          if (!Provider.of<AudioHandlerAdmin>(context, listen: false)
+                  .getIsPlaying ==
+              true) {
+            _lottiePlayPauseController.animateTo(0.52);
+          } else {
+            _lottiePlayPauseController.animateTo(0.1);
+          }
         }
       });
 
@@ -73,87 +75,111 @@ class _AudioPlayerMiniState extends State<AudioPlayerMini>
   Widget build(BuildContext context) {
     textScrollWidth =
         widget.textScrollWidth ?? (MediaQuery.of(context).size.width / 1.6);
-    return Stack(
-      children: [
-        LiquidAnimation(),
-        Consumer<AudioHandlerAdmin>(builder: (context, handler, _) {
-          return Visibility(
-            visible: handler.getNumberOfAudios > 0 ? true : false,
-            child: Padding(
-              padding: EdgeInsets.only(top: widget._baseHeight / 3.5),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  ExtendedButton(
-                    onTap: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (BuildContext context) {
-                        return const AudioPlayerScreen();
-                      })).then((value) {
-                        AppConstants.systemConfigs.setBottomNavBarColor(
-                            AppConstants
-                                .colors.secondaryColors.kBaseCounterColor);
-                      });
-                    },
-                    svgName: icons.arrow,
-                    angle: pi,
-                    extendedRadius: 40,
-                    color: AppConstants.colors.secondaryColors.kBackgroundColor,
-                    height: AppConstants.sizes.kDefaultIconHeight / 1.2,
-                  ),
-                  ScrollingText(
-                    text: handler.getTitle == 'Untitled Song'
-                        ? widget.songName
-                        : handler.getTitle,
-                    width: textScrollWidth,
-                    style:
-                        AppConstants.textStyles.kAudioPlayerMiniTitleTextStyle,
-                  ),
-                  const AudioVisualizer(),
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      IntrinsicHeight(
-                        child:
-                            CircularProgressMini(max: handler.getTotalDuration),
-                      ),
-                      ExtendedButton(
-                        extendedRadius: 42,
-                        child: SizedBox(
-                          height: 18,
-                          child: Lottie.asset(
-                              AppConstants.paths
-                                  .kLottieAnimationPaths[animations.playPause]!,
-                              controller: _lottiePlayPauseController,
-                              onLoaded: (controller) {
-                            _lottiePlayPauseController.duration =
-                                controller.duration;
-                            if (!handler.getIsPlaying) {
-                              setState(() {
-                                _lottiePlayPauseController.value = 0.52;
-                              });
+    return GestureDetector(
+      onVerticalDragEnd: (DragEndDetails details) {
+        if (details.velocity.pixelsPerSecond.dy < 0) {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (BuildContext context) {
+            return const AudioPlayerScreen();
+          })).then((value) {
+            AppConstants.systemConfigs.setBottomNavBarColor(
+                AppConstants.colors.secondaryColors.kBaseCounterColor);
+          });
+        }
+      },
+      child: Stack(
+        children: [
+          LiquidAnimation(),
+          Consumer<AudioHandlerAdmin>(builder: (context, handler, _) {
+            return Visibility(
+              visible: handler.getNumberOfAudios > 0 ? true : false,
+              child: Padding(
+                padding: EdgeInsets.only(top: widget._baseHeight / 3.5),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ExtendedButton(
+                      onTap: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (BuildContext context) {
+                          return const AudioPlayerScreen();
+                        })).then((value) {
+                          AppConstants.systemConfigs.setBottomNavBarColor(
+                              AppConstants
+                                  .colors.secondaryColors.kBaseCounterColor);
+                        });
+                      },
+                      svgName: icons.arrow,
+                      angle: pi,
+                      extendedRadius: 40,
+                      color:
+                          AppConstants.colors.secondaryColors.kBackgroundColor,
+                      height: AppConstants.sizes.kDefaultIconHeight / 1.2,
+                    ),
+                    ScrollingText(
+                      text: handler.getTitle == 'Untitled Song'
+                          ? widget.songName
+                          : handler.getTitle,
+                      width: textScrollWidth,
+                      style: AppConstants
+                          .textStyles.kAudioPlayerMiniTitleTextStyle,
+                    ),
+                    const AudioVisualizer(),
+                    StreamBuilder<bool>(
+                        stream: handler.getAudioHandler.playbackState
+                            .map((state) => state.playing)
+                            .distinct(),
+                        builder: (context, snapshot) {
+                          final playing = snapshot.data ?? false;
+                          if (_lottiePlayPauseController.duration != null) {
+                            if (!playing) {
+                              _lottiePlayPauseController.forward();
+                            } else {
+                              _lottiePlayPauseController.animateTo(0.1);
                             }
-                          }),
-                        ),
-                        onTap: () {
-                          if (handler.getIsPlaying) {
-                            handler.getAudioHandler.pause();
-                          } else {
-                            handler.getAudioHandler.play();
                           }
-                          _lottiePlayPauseController.forward().then((value) {
-                            _lottiePlayPauseController.value = 0.1;
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ],
+
+                          return Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              IntrinsicHeight(
+                                child: CircularProgressMini(
+                                    max: handler.getTotalDuration),
+                              ),
+                              ExtendedButton(
+                                extendedRadius: 42,
+                                child: SizedBox(
+                                  height: 18,
+                                  child: Lottie.asset(
+                                      AppConstants.paths.kLottieAnimationPaths[
+                                          animations.playPause]!,
+                                      controller: _lottiePlayPauseController,
+                                      onLoaded: (controller) {
+                                    _lottiePlayPauseController.duration =
+                                        Duration(
+                                            milliseconds: controller
+                                                    .duration.inMilliseconds ~/
+                                                2);
+
+                                    _lottiePlayPauseController.animateTo(0.1);
+                                  }),
+                                ),
+                                onTap: () {
+                                  playing
+                                      ? handler.getAudioHandler.pause()
+                                      : handler.getAudioHandler.play();
+                                },
+                              ),
+                            ],
+                          );
+                        })
+                  ],
+                ),
               ),
-            ),
-          );
-        }),
-      ],
+            );
+          }),
+        ],
+      ),
     );
   }
 }

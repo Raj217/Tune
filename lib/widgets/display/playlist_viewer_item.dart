@@ -40,8 +40,8 @@ class _PlaylistViewerItemState extends State<PlaylistViewerItem> {
     MediaItem mediaItem = Provider.of<AudioHandlerAdmin>(context, listen: false)
         .getCurrentPlaylistMediaItems[widget.index];
     return InkWell(
-      onTap: () async {
-        await Future.delayed(AppConstants.durations.kQuick);
+      onTap: () {
+        Future.delayed(AppConstants.durations.kQuick);
         Provider.of<AudioHandlerAdmin>(context, listen: false)
             .getAudioHandler
             .skipToQueueItem(widget.index);
