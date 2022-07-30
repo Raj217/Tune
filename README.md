@@ -1,9 +1,9 @@
 
 # Tune
 Android Music App with a lot of bugs.
-This project has been dropped. A new version will be started very soon.
+This project has been dropped. Currently working on [Mixyr](https://github.com/Raj217/Mixyr) which is an upgrade of this app.
 
-Download link: https://drive.google.com/file/d/1VZ4NhjiIHMw07vOIfwvY1W3zla7l-sy8/view?usp=sharing
+[Download](https://drive.google.com/file/d/1VZ4NhjiIHMw07vOIfwvY1W3zla7l-sy8/view?usp=sharing)
 
 # Splash Screen
 <img src="demo%20images/splash screen.jpg" height=400px>
